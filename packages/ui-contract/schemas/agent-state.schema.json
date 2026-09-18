@@ -32,8 +32,7 @@
       "minLength": 1
     },
     "agentType": {
-      "type": "string",
-      "minLength": 1
+      "$ref": "common.schema.json#/$defs/AgentType"
     },
     "healthStatus": {
       "$ref": "common.schema.json#/$defs/AgentHealthStatus"

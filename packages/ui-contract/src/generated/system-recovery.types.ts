@@ -9,18 +9,17 @@ export interface SystemRecoveryPayload {
    * Strict UI Data Contract v1.0.0 schema version
    */
   schemaVersion: "1.0.0";
-  recoveryId: string;
   target: TargetRef;
-  /**
-   * System recovery status
-   */
-  status: "RECOVERING" | "WAITING_FOR_USER" | "BLOCKED" | "FAILED";
   whatHappened: string;
   whatAiTeamIsDoing: string;
   whatUserShouldDo: string;
+  /**
+   * System recovery status
+   */
+  recoveryStatus: "RECOVERING" | "WAITING_FOR_USER" | "BLOCKED" | "FAILED";
+  attemptIndex?: number | null;
+  attemptLimit?: number | null;
   recommendedActions: RecommendedActionRef[];
-  canAutoRecover: boolean;
-  initiatedAt: string;
 }
 /**
  * Target entity reference for actions, recovery, and routing

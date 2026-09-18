@@ -6,28 +6,19 @@
   "type": "object",
   "required": [
     "schemaVersion",
-    "recoveryId",
     "target",
-    "status",
     "whatHappened",
     "whatAiTeamIsDoing",
     "whatUserShouldDo",
-    "recommendedActions",
-    "canAutoRecover",
-    "initiatedAt"
+    "recoveryStatus",
+    "recommendedActions"
   ],
   "properties": {
     "schemaVersion": {
       "$ref": "common.schema.json#/$defs/SchemaVersion"
     },
-    "recoveryId": {
-      "$ref": "common.schema.json#/$defs/EntityId"
-    },
     "target": {
       "$ref": "common.schema.json#/$defs/TargetRef"
-    },
-    "status": {
-      "$ref": "common.schema.json#/$defs/RecoveryStatus"
     },
     "whatHappened": {
       "type": "string",
@@ -41,17 +32,22 @@
       "type": "string",
       "minLength": 1
     },
+    "recoveryStatus": {
+      "$ref": "common.schema.json#/$defs/RecoveryStatus"
+    },
+    "attemptIndex": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "attemptLimit": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
     "recommendedActions": {
       "type": "array",
       "items": {
         "$ref": "common.schema.json#/$defs/RecommendedActionRef"
       }
-    },
-    "canAutoRecover": {
-      "type": "boolean"
-    },
-    "initiatedAt": {
-      "$ref": "common.schema.json#/$defs/IsoTimestamp"
     }
   },
   "additionalProperties": false

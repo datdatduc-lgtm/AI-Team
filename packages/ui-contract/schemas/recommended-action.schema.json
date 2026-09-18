@@ -6,23 +6,14 @@
   "type": "object",
   "required": [
     "schemaVersion",
-    "recommendationId",
     "actionCode",
     "targetId",
     "labelKey",
-    "title",
-    "intent",
-    "reason",
-    "confidenceScore",
-    "requiresApproval",
-    "payloadParameters"
+    "requiresApproval"
   ],
   "properties": {
     "schemaVersion": {
       "$ref": "common.schema.json#/$defs/SchemaVersion"
-    },
-    "recommendationId": {
-      "$ref": "common.schema.json#/$defs/EntityId"
     },
     "actionCode": {
       "type": "string",
@@ -34,22 +25,6 @@
     "labelKey": {
       "type": "string",
       "minLength": 1
-    },
-    "title": {
-      "type": "string",
-      "minLength": 1
-    },
-    "intent": {
-      "$ref": "common.schema.json#/$defs/UIActionIntent"
-    },
-    "reason": {
-      "type": "string",
-      "minLength": 1
-    },
-    "confidenceScore": {
-      "type": "number",
-      "minimum": 0,
-      "maximum": 1
     },
     "requiresApproval": {
       "type": "boolean"

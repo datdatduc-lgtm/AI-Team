@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "eventId": "evt-001",
-  "eventType": "SESSION_INITIALIZED",
+  "eventType": "SESSION_STATE_CHANGED",
   "emittedAt": "2026-09-18T00:00:00.000Z",
   "projectId": "proj-alpha",
   "sessionId": "sess-001",

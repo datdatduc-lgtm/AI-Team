@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "agentId": "agent-codex-01",
   "displayName": "Codex Engineer",
-  "agentType": "ENGINEER",
+  "agentType": "WEB_AI",
   "healthStatus": "HEALTHY",
   "statusSummary": "Ready for instruction",
   "selectedForSession": true,

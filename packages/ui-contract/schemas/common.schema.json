@@ -27,6 +27,11 @@
       "type": "integer",
       "minimum": 0
     },
+    "AgentType": {
+      "type": "string",
+      "enum": ["WEB_AI", "MANAGED_LOCAL_AGENT"],
+      "description": "Classification of agent member type"
+    },
     "Ownership": {
       "type": "string",
       "enum": ["OWNED", "BORROWED", "FOREIGN"],
@@ -121,8 +126,22 @@
     },
     "CapabilityCategory": {
       "type": "string",
-      "enum": ["HOST", "MODEL", "TOOL", "INTEGRATION", "SYSTEM"],
+      "enum": ["SKILL", "PLUGIN_MCP", "APP_CONNECTION", "MODEL"],
       "description": "Capability classification category"
+    },
+    "CoreEventType": {
+      "type": "string",
+      "enum": [
+        "SESSION_STATE_CHANGED",
+        "GOAL_STATE_CHANGED",
+        "AGENT_STATE_CHANGED",
+        "WORKER_STATE_CHANGED",
+        "CAPABILITY_STATE_CHANGED",
+        "ROUTE_STATE_CHANGED",
+        "SYSTEM_RECOVERY_TRIGGERED",
+        "ACTION_RESULT_EMITTED"
+      ],
+      "description": "Strict core event type classification"
     },
     "RouteSemanticState": {
       "type": "string",

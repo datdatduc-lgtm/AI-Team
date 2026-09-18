@@ -61,7 +61,7 @@ describe('UI Contract v1.0.0 Valid Fixtures', () => {
     const result = defaultValidator.validateAgentStatePayload(fixture);
     expect(result.success).toBe(true);
     expect(result.data?.healthStatus).toBe('HEALTHY');
-    expect(result.data?.agentType).toBe('ENGINEER');
+    expect(result.data?.agentType).toBe('WEB_AI');
     expect(result.data?.statusSummary).toBe('Ready for instruction');
   });
 
@@ -79,8 +79,8 @@ describe('UI Contract v1.0.0 Valid Fixtures', () => {
     const result = defaultValidator.validateCapabilityRequirementPayload(fixture);
     expect(result.success).toBe(true);
     expect(result.data?.status).toBe('AVAILABLE');
-    expect(result.data?.category).toBe('HOST');
-    expect(result.data?.resolutionType).toBe('AUTOMATIC');
+    expect(result.data?.category).toBe('SKILL');
+    expect(result.data?.requiredForGoal).toBe(true);
   });
 
   it('validates HostCapabilityRegistryPayload', () => {
@@ -96,16 +96,50 @@ describe('UI Contract v1.0.0 Valid Fixtures', () => {
     expect(result.success).toBe(true);
     expect(result.data?.semanticState).toBe('READY');
     expect(result.data?.targetAgentId).toBe('agent-codex-01');
+    expect(result.data?.statusMessage).toBe('Route target connected and ready');
     expect(result.data?.capturedTargetName).toBe('CodeEditorView');
+  });
+
+  it('validates RouteStatePayload when capturedTargetName is null', () => {
+    const payload = {
+      schemaVersion: '1.0.0',
+      routeId: 'route-unattached',
+      targetAgentId: 'agent-codex-01',
+      semanticState: 'MISSING',
+      statusMessage: 'Route target not yet attached',
+      capturedTargetName: null,
+    };
+    const result = defaultValidator.validateRouteStatePayload(payload);
+    expect(result.success).toBe(true);
+    expect(result.data?.capturedTargetName).toBeNull();
   });
 
   it('validates SystemRecoveryPayload', () => {
     const fixture = loadFixture('valid/system-recovery.valid.json');
     const result = defaultValidator.validateSystemRecoveryPayload(fixture);
     expect(result.success).toBe(true);
-    expect(result.data?.status).toBe('RECOVERING');
+    expect(result.data?.recoveryStatus).toBe('RECOVERING');
     expect(result.data?.target.type).toBe('WORKER');
-    expect(result.data?.canAutoRecover).toBe(true);
+  });
+
+  it('validates SystemRecoveryPayload when attemptIndex and attemptLimit are null', () => {
+    const payload = {
+      schemaVersion: '1.0.0',
+      target: {
+        type: 'WORKER',
+        id: 'worker-proc-01',
+      },
+      whatHappened: 'Worker hung during handshake',
+      whatAiTeamIsDoing: 'Evaluating restart safepoint',
+      whatUserShouldDo: 'Please wait for recovery',
+      recoveryStatus: 'RECOVERING',
+      attemptIndex: null,
+      attemptLimit: null,
+      recommendedActions: [],
+    };
+    const result = defaultValidator.validateSystemRecoveryPayload(payload);
+    expect(result.success).toBe(true);
+    expect(result.data?.attemptIndex).toBeNull();
   });
 
   it('validates RecommendedActionPayload', () => {
@@ -114,6 +148,29 @@ describe('UI Contract v1.0.0 Valid Fixtures', () => {
     expect(result.success).toBe(true);
     expect(result.data?.actionCode).toBe('ENABLE_FILE_ACCESS');
     expect(result.data?.requiresApproval).toBe(true);
+  });
+
+  it('validates ActionResultPayload when message is absent or null', () => {
+    const payloadAbsent = {
+      schemaVersion: '1.0.0',
+      actionId: 'act-101',
+      operationId: 'op-101',
+      status: 'ACCEPTED',
+      currentStateRevision: 2,
+    };
+    const resultAbsent = defaultValidator.validateActionResultPayload(payloadAbsent);
+    expect(resultAbsent.success).toBe(true);
+
+    const payloadNull = {
+      schemaVersion: '1.0.0',
+      actionId: 'act-102',
+      operationId: 'op-102',
+      status: 'ACCEPTED',
+      currentStateRevision: 2,
+      message: null,
+    };
+    const resultNull = defaultValidator.validateActionResultPayload(payloadNull);
+    expect(resultNull.success).toBe(true);
   });
 });
 

@@ -7,11 +7,10 @@
   "required": [
     "schemaVersion",
     "routeId",
-    "routeName",
-    "semanticState",
     "targetAgentId",
-    "capturedTargetName",
-    "updatedAt"
+    "semanticState",
+    "statusMessage",
+    "capturedTargetName"
   ],
   "properties": {
     "schemaVersion": {
@@ -20,26 +19,21 @@
     "routeId": {
       "$ref": "common.schema.json#/$defs/EntityId"
     },
-    "routeName": {
-      "type": "string",
-      "minLength": 1
+    "targetAgentId": {
+      "$ref": "common.schema.json#/$defs/EntityId"
     },
     "semanticState": {
       "$ref": "common.schema.json#/$defs/RouteSemanticState"
     },
-    "targetAgentId": {
-      "$ref": "common.schema.json#/$defs/EntityId"
+    "statusMessage": {
+      "type": "string"
     },
     "capturedTargetName": {
-      "type": "string",
-      "minLength": 1
+      "type": ["string", "null"]
     },
     "metadata": {
       "type": "object",
       "additionalProperties": true
-    },
-    "updatedAt": {
-      "$ref": "common.schema.json#/$defs/IsoTimestamp"
     }
   },
   "additionalProperties": false

@@ -21,6 +21,17 @@ function getAllTsFiles(dir: string): string[] {
   }
   return results;
 }
+export const FORBIDDEN_DOMAIN_NODE_BUILTINS = [
+  /^(node:)?fs(\/.*)?$/,
+  /^(node:)?child_process(\/.*)?$/,
+  /^(node:)?net(\/.*)?$/,
+  /^(node:)?http(\/.*)?$/,
+  /^(node:)?https(\/.*)?$/,
+  /^(node:)?crypto(\/.*)?$/,
+  /^(node:)?os(\/.*)?$/,
+  /^(node:)?path(\/.*)?$/,
+  /^(node:)?worker_threads(\/.*)?$/,
+];
 
 export function extractAllImportSources(content: string): string[] {
   const sources: string[] = [];

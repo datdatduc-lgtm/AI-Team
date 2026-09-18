@@ -1,13 +1,8 @@
 {
   "schemaVersion": "1.0.0",
-  "recommendationId": "rec-act-001",
   "actionCode": "ENABLE_FILE_ACCESS",
   "targetId": "host.file.openFolder",
   "labelKey": "actions.enableFileAccess",
-  "title": "Enable Host File Access",
-  "intent": "ENABLE_CAPABILITY",
-  "reason": "Active goal requires workspace reading capability",
-  "confidenceScore": 0.95,
   "requiresApproval": true,
   "payloadParameters": {
     "capabilityId": "host.file.openFolder"

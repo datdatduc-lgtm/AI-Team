@@ -10,21 +10,19 @@ export interface CapabilityRequirementPayload {
    */
   schemaVersion: "1.0.0";
   requirementId: string;
-  capabilityId: string;
   capabilityName: string;
   /**
    * Capability classification category
    */
-  category: "HOST" | "MODEL" | "TOOL" | "INTEGRATION" | "SYSTEM";
-  description: string;
+  category: "SKILL" | "PLUGIN_MCP" | "APP_CONNECTION" | "MODEL";
+  requiredForGoal: boolean;
   /**
    * Capability availability status
    */
   status: "AVAILABLE" | "DISABLED" | "UNCONFIGURED" | "MISSING" | "INCOMPATIBLE";
-  resolutionType: "AUTOMATIC" | "USER_APPROVAL" | "HOST_PERMISSION" | "UNSUPPORTED";
+  selectedProviderId?: string | null;
   alternatives: string[];
   recommendedActions: RecommendedActionRef[];
-  resolvedAt?: string;
 }
 /**
  * Recommended action definition

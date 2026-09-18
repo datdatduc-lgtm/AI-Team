@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "agentId": "agent-01",
   "displayName": "Agent",
-  "agentType": "ENGINEER",
+  "agentType": "WEB_AI",
   "healthStatus": "HEALTHY",
   "statusSummary": "Ready",
   "workState": "RUNNING",

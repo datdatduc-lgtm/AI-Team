@@ -9,9 +9,7 @@
     "actionId",
     "operationId",
     "status",
-    "currentStateRevision",
-    "message",
-    "emittedAt"
+    "currentStateRevision"
   ],
   "properties": {
     "schemaVersion": {
@@ -26,17 +24,14 @@
     "status": {
       "$ref": "common.schema.json#/$defs/ActionResultStatus"
     },
-    "operationState": {
-      "$ref": "common.schema.json#/$defs/OperationState"
-    },
     "currentStateRevision": {
       "$ref": "common.schema.json#/$defs/StateRevision"
     },
     "message": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "rejectionReason": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "errors": {
       "type": "array",

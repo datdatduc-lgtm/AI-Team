@@ -10,7 +10,18 @@ export interface CoreEventEnvelope {
    */
   schemaVersion: "1.0.0";
   eventId: string;
-  eventType: string;
+  /**
+   * Strict core event type classification
+   */
+  eventType:
+    | "SESSION_STATE_CHANGED"
+    | "GOAL_STATE_CHANGED"
+    | "AGENT_STATE_CHANGED"
+    | "WORKER_STATE_CHANGED"
+    | "CAPABILITY_STATE_CHANGED"
+    | "ROUTE_STATE_CHANGED"
+    | "SYSTEM_RECOVERY_TRIGGERED"
+    | "ACTION_RESULT_EMITTED";
   emittedAt: string;
   projectId: string;
   sessionId?: string | null;

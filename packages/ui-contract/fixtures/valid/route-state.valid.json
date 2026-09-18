@@ -1,10 +1,9 @@
 {
   "schemaVersion": "1.0.0",
   "routeId": "route-editor-main",
-  "routeName": "Main Code Editor",
-  "semanticState": "READY",
   "targetAgentId": "agent-codex-01",
-  "capturedTargetName": "CodeEditorView",
-  "updatedAt": "2026-09-18T00:00:07.000Z"
+  "semanticState": "READY",
+  "statusMessage": "Route target connected and ready",
+  "capturedTargetName": "CodeEditorView"
 }
 

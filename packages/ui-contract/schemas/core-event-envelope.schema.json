@@ -22,8 +22,7 @@
       "$ref": "common.schema.json#/$defs/EntityId"
     },
     "eventType": {
-      "type": "string",
-      "minLength": 1
+      "$ref": "common.schema.json#/$defs/CoreEventType"
     },
     "emittedAt": {
       "$ref": "common.schema.json#/$defs/IsoTimestamp"

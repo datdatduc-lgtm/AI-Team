@@ -10,15 +10,14 @@ export interface RouteStatePayload {
    */
   schemaVersion: "1.0.0";
   routeId: string;
-  routeName: string;
+  targetAgentId: string;
   /**
    * Semantic route state
    */
   semanticState: "CONFIGURED" | "VERIFYING" | "READY" | "AUTH_REQUIRED" | "WRONG_CONVERSATION" | "MISSING" | "BROKEN";
-  targetAgentId: string;
-  capturedTargetName: string;
+  statusMessage: string;
+  capturedTargetName: string | null;
   metadata?: {
     [k: string]: unknown | undefined;
   };
-  updatedAt: string;
 }

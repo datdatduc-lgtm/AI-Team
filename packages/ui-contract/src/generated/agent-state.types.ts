@@ -11,7 +11,10 @@ export interface AgentStatePayload {
   schemaVersion: "1.0.0";
   agentId: string;
   displayName: string;
-  agentType: string;
+  /**
+   * Classification of agent member type
+   */
+  agentType: "WEB_AI" | "MANAGED_LOCAL_AGENT";
   /**
    * Agent health status strictly decoupled from worker execution state
    */

@@ -63,14 +63,14 @@ describe('UI Contract v1.0.0 Invalid Fixtures (Must FAIL CLOSED)', () => {
     expect(result.errors?.some((e) => e.includes('stateRevision') || e.includes('minimum'))).toBe(true);
   });
 
-  it('fails when AgentState uses non-baseline healthStatus (e.g. UNHEALTHY)', () => {
+  it('fails when AgentState uses non-baseline agentType (e.g. ENGINEER)', () => {
     const payload = {
       schemaVersion: '1.0.0',
       agentId: 'agent-codex-01',
       displayName: 'Codex Engineer',
       agentType: 'ENGINEER',
-      healthStatus: 'UNHEALTHY',
-      statusSummary: 'Degraded connection',
+      healthStatus: 'HEALTHY',
+      statusSummary: 'Ready for instruction',
       selectedForSession: true,
       assignedToGoal: true,
       sessionRole: 'Code Implementation',
@@ -82,7 +82,100 @@ describe('UI Contract v1.0.0 Invalid Fixtures (Must FAIL CLOSED)', () => {
     };
     const result = defaultValidator.validateAgentStatePayload(payload);
     expect(result.success).toBe(false);
-    expect(result.errors?.some((e) => e.includes('healthStatus') || e.includes('enum'))).toBe(true);
+    expect(result.errors?.some((e) => e.includes('agentType') || e.includes('enum'))).toBe(true);
+  });
+
+  it('fails when CapabilityRequirement uses non-baseline category (e.g. HOST)', () => {
+    const payload = {
+      schemaVersion: '1.0.0',
+      requirementId: 'req-001',
+      capabilityName: 'Host Folder Access',
+      category: 'HOST',
+      requiredForGoal: true,
+      status: 'AVAILABLE',
+      alternatives: [],
+      recommendedActions: [],
+    };
+    const result = defaultValidator.validateCapabilityRequirementPayload(payload);
+    expect(result.success).toBe(false);
+    expect(result.errors?.some((e) => e.includes('category') || e.includes('enum'))).toBe(true);
+  });
+
+  it('fails when CapabilityRequirement misses requiredForGoal', () => {
+    const payload = {
+      schemaVersion: '1.0.0',
+      requirementId: 'req-001',
+      capabilityName: 'Host Folder Access',
+      category: 'SKILL',
+      status: 'AVAILABLE',
+      alternatives: [],
+      recommendedActions: [],
+    };
+    const result = defaultValidator.validateCapabilityRequirementPayload(payload);
+    expect(result.success).toBe(false);
+    expect(result.errors?.some((e) => e.includes('requiredForGoal'))).toBe(true);
+  });
+
+  it('fails when RouteState misses statusMessage', () => {
+    const payload = {
+      schemaVersion: '1.0.0',
+      routeId: 'route-01',
+      semanticState: 'READY',
+      targetAgentId: 'agent-01',
+      capturedTargetName: 'Editor',
+    };
+    const result = defaultValidator.validateRouteStatePayload(payload);
+    expect(result.success).toBe(false);
+    expect(result.errors?.some((e) => e.includes('statusMessage'))).toBe(true);
+  });
+
+  it('fails when SystemRecovery uses field status instead of recoveryStatus', () => {
+    const payload = {
+      schemaVersion: '1.0.0',
+      target: {
+        type: 'WORKER',
+        id: 'worker-01',
+      },
+      whatHappened: 'Crash',
+      whatAiTeamIsDoing: 'Recovering',
+      whatUserShouldDo: 'Wait',
+      status: 'RECOVERING',
+      recommendedActions: [],
+    };
+    const result = defaultValidator.validateSystemRecoveryPayload(payload);
+    expect(result.success).toBe(false);
+    expect(result.errors?.some((e) => e.includes('recoveryStatus') || e.includes('additional'))).toBe(true);
+  });
+
+  it('fails when RecommendedAction contains legacy confidenceScore or title', () => {
+    const payload = {
+      schemaVersion: '1.0.0',
+      actionCode: 'ENABLE_CAPABILITY',
+      targetId: 'cap-01',
+      labelKey: 'actions.enable',
+      requiresApproval: true,
+      title: 'Legacy Title',
+      confidenceScore: 0.9,
+    };
+    const result = defaultValidator.validateRecommendedActionPayload(payload);
+    expect(result.success).toBe(false);
+    expect(result.errors?.some((e) => e.includes('additional'))).toBe(true);
+  });
+
+  it('fails when CoreEventEnvelope uses non-baseline eventType (e.g. RANDOM_EVENT)', () => {
+    const payload = {
+      schemaVersion: '1.0.0',
+      eventId: 'evt-999',
+      eventType: 'RANDOM_EVENT',
+      emittedAt: '2026-09-18T00:00:00.000Z',
+      projectId: 'proj-01',
+      stateRevision: 1,
+      sequence: 1,
+      payload: {},
+    };
+    const result = defaultValidator.validateCoreEventEnvelope(payload);
+    expect(result.success).toBe(false);
+    expect(result.errors?.some((e) => e.includes('eventType') || e.includes('enum'))).toBe(true);
   });
 
   it('fails when WorkerState uses non-baseline workState (e.g. WORKING)', () => {
@@ -106,12 +199,10 @@ describe('UI Contract v1.0.0 Invalid Fixtures (Must FAIL CLOSED)', () => {
     const payload = {
       schemaVersion: '1.0.0',
       requirementId: 'req-001',
-      capabilityId: 'host.file.openFolder',
       capabilityName: 'Host Folder Access',
-      category: 'HOST',
-      description: 'Requires filesystem workspace folder access',
+      category: 'SKILL',
+      requiredForGoal: true,
       status: 'RESOLVED',
-      resolutionType: 'AUTOMATIC',
       alternatives: [],
       recommendedActions: [],
     };
@@ -124,12 +215,11 @@ describe('UI Contract v1.0.0 Invalid Fixtures (Must FAIL CLOSED)', () => {
     const payload = {
       schemaVersion: '1.0.0',
       routeId: 'route-01',
-      routeName: 'Main View',
+      statusMessage: 'Ready',
       isFocused: true,
       semanticState: 'READY',
       targetAgentId: 'agent-01',
       capturedTargetName: 'Editor',
-      updatedAt: '2026-09-18T00:00:07.000Z',
     };
     const result = defaultValidator.validateRouteStatePayload(payload);
     expect(result.success).toBe(false);

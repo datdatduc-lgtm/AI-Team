@@ -15,16 +15,12 @@ export interface ActionResultPayload {
    * Action admission result status
    */
   status: "ACCEPTED" | "REJECTED" | "REQUIRES_APPROVAL" | "CONFLICT" | "UNSUPPORTED";
-  /**
-   * Long-running operation execution state
-   */
-  operationState?: "PENDING" | "RUNNING" | "SUCCEEDED" | "FAILED";
   currentStateRevision: number;
-  message: string;
-  rejectionReason?: string;
+  message?: string | null;
+  rejectionReason?: string | null;
   errors?: string[];
   payload?: {
     [k: string]: unknown | undefined;
   };
-  emittedAt: string;
+  emittedAt?: string;
 }
