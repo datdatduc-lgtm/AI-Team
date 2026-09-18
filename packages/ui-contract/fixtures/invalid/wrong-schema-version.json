@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.0.0",
+  "schemaVersion": "1.1.0",
   "actionId": "act-001",
   "operationId": "op-001",
   "intent": "INITIALIZE_AI_TEAM",
@@ -7,3 +7,4 @@
   "expectedStateRevision": 0,
   "parameters": {}
 }
+

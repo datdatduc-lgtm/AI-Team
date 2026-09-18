@@ -8,37 +8,40 @@
     "schemaVersion",
     "routeId",
     "routeName",
-    "isFocused",
-    "activeView",
+    "semanticState",
+    "targetAgentId",
+    "capturedTargetName",
     "updatedAt"
   ],
   "properties": {
     "schemaVersion": {
-      "type": "string",
-      "pattern": "^1\\.\\d+\\.\\d+$"
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
     },
     "routeId": {
-      "type": "string",
-      "minLength": 1
+      "$ref": "common.schema.json#/$defs/EntityId"
     },
     "routeName": {
       "type": "string",
       "minLength": 1
     },
-    "isFocused": {
-      "type": "boolean"
+    "semanticState": {
+      "$ref": "common.schema.json#/$defs/RouteSemanticState"
     },
-    "activeView": {
+    "targetAgentId": {
+      "$ref": "common.schema.json#/$defs/EntityId"
+    },
+    "capturedTargetName": {
       "type": "string",
       "minLength": 1
     },
     "metadata": {
-      "type": "object"
+      "type": "object",
+      "additionalProperties": true
     },
     "updatedAt": {
-      "type": "string",
-      "format": "date-time"
+      "$ref": "common.schema.json#/$defs/IsoTimestamp"
     }
   },
   "additionalProperties": false
 }
+

@@ -5,11 +5,18 @@
  * Host and application route focus and view state
  */
 export interface RouteStatePayload {
-  schemaVersion: string;
+  /**
+   * Strict UI Data Contract v1.0.0 schema version
+   */
+  schemaVersion: "1.0.0";
   routeId: string;
   routeName: string;
-  isFocused: boolean;
-  activeView: string;
+  /**
+   * Semantic route state
+   */
+  semanticState: "CONFIGURED" | "VERIFYING" | "READY" | "AUTH_REQUIRED" | "WRONG_CONVERSATION" | "MISSING" | "BROKEN";
+  targetAgentId: string;
+  capturedTargetName: string;
   metadata?: {
     [k: string]: unknown | undefined;
   };

@@ -14,11 +14,11 @@ function loadFixture(relativePath: string) {
 }
 
 describe('UI Contract v1.0.0 Invalid Fixtures (Must FAIL CLOSED)', () => {
-  it('fails on wrong schemaVersion', () => {
+  it('fails on wrong schemaVersion (must be exact 1.0.0)', () => {
     const fixture = loadFixture('invalid/wrong-schema-version.json');
     const result = defaultValidator.validateUIActionEnvelope(fixture);
     expect(result.success).toBe(false);
-    expect(result.errors?.some((e) => e.includes('pattern'))).toBe(true);
+    expect(result.errors?.some((e) => e.includes('const') || e.includes('1.0.0'))).toBe(true);
   });
 
   it('fails when operationId is missing', () => {
@@ -61,6 +61,79 @@ describe('UI Contract v1.0.0 Invalid Fixtures (Must FAIL CLOSED)', () => {
     const result = defaultValidator.validateSessionStatePayload(fixture);
     expect(result.success).toBe(false);
     expect(result.errors?.some((e) => e.includes('stateRevision') || e.includes('minimum'))).toBe(true);
+  });
+
+  it('fails when AgentState uses non-baseline healthStatus (e.g. UNHEALTHY)', () => {
+    const payload = {
+      schemaVersion: '1.0.0',
+      agentId: 'agent-codex-01',
+      displayName: 'Codex Engineer',
+      agentType: 'ENGINEER',
+      healthStatus: 'UNHEALTHY',
+      statusSummary: 'Degraded connection',
+      selectedForSession: true,
+      assignedToGoal: true,
+      sessionRole: 'Code Implementation',
+      canContinueWithoutAgent: false,
+      userActionRequired: false,
+      recommendedActions: [],
+      stateRevision: 1,
+      updatedAt: '2026-09-18T00:00:04.000Z',
+    };
+    const result = defaultValidator.validateAgentStatePayload(payload);
+    expect(result.success).toBe(false);
+    expect(result.errors?.some((e) => e.includes('healthStatus') || e.includes('enum'))).toBe(true);
+  });
+
+  it('fails when WorkerState uses non-baseline workState (e.g. WORKING)', () => {
+    const payload = {
+      schemaVersion: '1.0.0',
+      workerId: 'worker-proc-01',
+      displayName: 'Worker 01',
+      ownedByAgentId: 'agent-codex-01',
+      workState: 'WORKING',
+      supportsPauseSafepoint: true,
+      ownership: 'OWNED',
+      stateRevision: 4,
+      updatedAt: '2026-09-18T00:00:05.000Z',
+    };
+    const result = defaultValidator.validateWorkerStatePayload(payload);
+    expect(result.success).toBe(false);
+    expect(result.errors?.some((e) => e.includes('workState') || e.includes('enum'))).toBe(true);
+  });
+
+  it('fails when CapabilityRequirement uses non-baseline status', () => {
+    const payload = {
+      schemaVersion: '1.0.0',
+      requirementId: 'req-001',
+      capabilityId: 'host.file.openFolder',
+      capabilityName: 'Host Folder Access',
+      category: 'HOST',
+      description: 'Requires filesystem workspace folder access',
+      status: 'RESOLVED',
+      resolutionType: 'AUTOMATIC',
+      alternatives: [],
+      recommendedActions: [],
+    };
+    const result = defaultValidator.validateCapabilityRequirementPayload(payload);
+    expect(result.success).toBe(false);
+    expect(result.errors?.some((e) => e.includes('status') || e.includes('enum'))).toBe(true);
+  });
+
+  it('fails when RouteState uses legacy isFocused boolean instead of semanticState', () => {
+    const payload = {
+      schemaVersion: '1.0.0',
+      routeId: 'route-01',
+      routeName: 'Main View',
+      isFocused: true,
+      semanticState: 'READY',
+      targetAgentId: 'agent-01',
+      capturedTargetName: 'Editor',
+      updatedAt: '2026-09-18T00:00:07.000Z',
+    };
+    const result = defaultValidator.validateRouteStatePayload(payload);
+    expect(result.success).toBe(false);
+    expect(result.errors?.some((e) => e.includes('additional'))).toBe(true);
   });
 
   describe('12 Baseline Action Intents Coverage', () => {

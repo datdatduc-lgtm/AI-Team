@@ -10,8 +10,7 @@
   ],
   "properties": {
     "schemaVersion": {
-      "type": "string",
-      "pattern": "^1\\.\\d+\\.\\d+$"
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
     },
     "capabilities": {
       "type": "object",
@@ -26,7 +25,8 @@
             "type": "string"
           },
           "metadata": {
-            "type": "object"
+            "type": "object",
+            "additionalProperties": true
           }
         },
         "additionalProperties": false
@@ -35,3 +35,4 @@
   },
   "additionalProperties": false
 }
+

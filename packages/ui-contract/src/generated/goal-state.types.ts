@@ -5,12 +5,18 @@
  * Goal aggregate state (independent from Session state)
  */
 export interface GoalStatePayload {
-  schemaVersion: string;
+  /**
+   * Strict UI Data Contract v1.0.0 schema version
+   */
+  schemaVersion: "1.0.0";
   goalId: string;
   sessionId: string;
   projectId: string;
   title: string;
-  status:
+  /**
+   * Goal lifecycle state
+   */
+  goalState:
     | "INTAKE"
     | "RESOLVING_CAPABILITIES"
     | "READY"
@@ -22,8 +28,10 @@ export interface GoalStatePayload {
     | "BLOCKED"
     | "FAILED"
     | "COMPLETED";
+  summaryText: string;
+  completedTaskCount: number;
+  totalTaskCount: number;
   assignedAgentIds: string[];
-  progress?: number;
   stateRevision: number;
   updatedAt: string;
 }

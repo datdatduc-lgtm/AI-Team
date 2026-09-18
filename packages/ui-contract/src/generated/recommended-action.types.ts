@@ -5,9 +5,18 @@
  * Proactive action recommendation suggested by Core for UI execution
  */
 export interface RecommendedActionPayload {
-  schemaVersion: string;
+  /**
+   * Strict UI Data Contract v1.0.0 schema version
+   */
+  schemaVersion: "1.0.0";
   recommendationId: string;
+  actionCode: string;
+  targetId: string;
+  labelKey: string;
   title: string;
+  /**
+   * Baseline UI action intents
+   */
   intent:
     | "INITIALIZE_AI_TEAM"
     | "SET_SESSION_TEAM"
@@ -21,10 +30,10 @@ export interface RecommendedActionPayload {
     | "PAUSE_WORKER_SAFEPOINT"
     | "EXECUTE_RECOMMENDED_ACTION"
     | "TERMINATE_SESSION";
-  parameters: {
-    [k: string]: unknown | undefined;
-  };
   reason: string;
   confidenceScore: number;
   requiresApproval: boolean;
+  payloadParameters: {
+    [k: string]: unknown | undefined;
+  };
 }

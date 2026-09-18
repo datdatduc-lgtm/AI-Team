@@ -5,13 +5,23 @@
  * Result envelope returned synchronously or via ACK for a UIActionEnvelope
  */
 export interface ActionResultPayload {
-  schemaVersion: string;
+  /**
+   * Strict UI Data Contract v1.0.0 schema version
+   */
+  schemaVersion: "1.0.0";
   actionId: string;
   operationId: string;
+  /**
+   * Action admission result status
+   */
   status: "ACCEPTED" | "REJECTED" | "REQUIRES_APPROVAL" | "CONFLICT" | "UNSUPPORTED";
+  /**
+   * Long-running operation execution state
+   */
   operationState?: "PENDING" | "RUNNING" | "SUCCEEDED" | "FAILED";
-  stateRevision: number;
-  reason?: string;
+  currentStateRevision: number;
+  message: string;
+  rejectionReason?: string;
   errors?: string[];
   payload?: {
     [k: string]: unknown | undefined;

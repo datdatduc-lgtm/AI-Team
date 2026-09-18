@@ -22,21 +22,64 @@ function getAllTsFiles(dir: string): string[] {
   return results;
 }
 
-function checkFileImports(filePath: string, forbiddenPatterns: RegExp[]): string[] {
+export function extractAllImportSources(content: string): string[] {
+  const sources: string[] = [];
+
+  // Match static import and export ... from statements (including multiline and type imports)
+  const staticImportExportRegex = /(?:import|export)\s+(?:[\s\S]*?from\s+)?['"]([^'"]+)['"]/g;
+  let match: RegExpExecArray | null;
+  while ((match = staticImportExportRegex.exec(content)) !== null) {
+    if (match[1]) sources.push(match[1]);
+  }
+
+  // Match dynamic imports: import('...')
+  const dynamicImportRegex = /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+  while ((match = dynamicImportRegex.exec(content)) !== null) {
+    if (match[1]) sources.push(match[1]);
+  }
+
+  // Match CommonJS require calls: require('...')
+  const requireRegex = /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+  while ((match = requireRegex.exec(content)) !== null) {
+    if (match[1]) sources.push(match[1]);
+  }
+
+  return sources;
+}
+
+export function checkFileImports(filePath: string, forbiddenPatterns: RegExp[]): string[] {
   const content = fs.readFileSync(filePath, 'utf8');
+  const importSources = extractAllImportSources(content);
   const violations: string[] = [];
 
-  // Match import statements: import ... from '...' or import('...')
-  const importRegex = /(?:import\s+(?:[\s\S]*?from\s+)?['"]([^'"]+)['"]|require\(['"]([^'"]+)['"]\))/g;
-  let match: RegExpExecArray | null;
-
-  while ((match = importRegex.exec(content)) !== null) {
-    const importSource = match[1] || match[2];
-    if (!importSource) continue;
-
+  for (const source of importSources) {
     for (const forbidden of forbiddenPatterns) {
-      if (forbidden.test(importSource)) {
-        violations.push(`File ${filePath} imports forbidden target "${importSource}" matching ${forbidden}`);
+      if (forbidden.test(source)) {
+        violations.push(`File ${filePath} imports forbidden target "${source}" matching pattern ${forbidden}`);
+      }
+    }
+  }
+
+  return violations;
+}
+
+export function checkPackageJsonDependencies(
+  pkgJsonPath: string,
+  allowedWorkspaceDeps: string[]
+): string[] {
+  if (!fs.existsSync(pkgJsonPath)) return [`Package manifest not found at ${pkgJsonPath}`];
+  const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
+  const violations: string[] = [];
+
+  const allDeps = {
+    ...(pkg.dependencies || {}),
+    ...(pkg.devDependencies || {}),
+  };
+
+  for (const dep of Object.keys(allDeps)) {
+    if (dep.startsWith('@ai-team/')) {
+      if (!allowedWorkspaceDeps.includes(dep)) {
+        violations.push(`Illegal workspace dependency "${dep}" in ${pkgJsonPath}`);
       }
     }
   }
@@ -99,6 +142,35 @@ describe('Architecture Boundary Guard Tests (Strict Enforce)', () => {
     expect(allViolations).toEqual([]);
   });
 
+  it('enforces: directional package.json dependency declarations across all packages', () => {
+    // core-domain has 0 workspace deps
+    const domainPkg = path.join(monorepoRoot, 'packages/core-domain/package.json');
+    expect(checkPackageJsonDependencies(domainPkg, [])).toEqual([]);
+
+    // core-application can only depend on core-domain and ui-contract
+    const appPkg = path.join(monorepoRoot, 'packages/core-application/package.json');
+    expect(
+      checkPackageJsonDependencies(appPkg, [
+        '@ai-team/core-domain',
+        '@ai-team/ui-contract',
+      ])
+    ).toEqual([]);
+
+    // core-infrastructure can only depend on core-domain, core-application, and ui-contract
+    const infraPkg = path.join(monorepoRoot, 'packages/core-infrastructure/package.json');
+    expect(
+      checkPackageJsonDependencies(infraPkg, [
+        '@ai-team/core-domain',
+        '@ai-team/core-application',
+        '@ai-team/ui-contract',
+      ])
+    ).toEqual([]);
+
+    // ui-contract has 0 workspace deps (pure specification + generated artifacts)
+    const uiContractPkg = path.join(monorepoRoot, 'packages/ui-contract/package.json');
+    expect(checkPackageJsonDependencies(uiContractPkg, [])).toEqual([]);
+  });
+
   it('enforces: desktop-ui package contains no production implementation in P0', () => {
     const desktopUiDir = path.join(monorepoRoot, 'packages/desktop-ui');
     const files = fs.readdirSync(desktopUiDir);
@@ -106,24 +178,46 @@ describe('Architecture Boundary Guard Tests (Strict Enforce)', () => {
     expect(files).toEqual(['README.md']);
   });
 
-  it('fails closed when an illegal import boundary is detected', () => {
-    // Synthetic check test to ensure violation detection logic works
-    const mockContentWithIllegalImport = `
+  it('fails closed when an illegal static or dynamic import boundary is detected', () => {
+    const mockContent = `
       import fs from 'node:fs';
-      import { something } from '@ai-team/core-infrastructure';
+      const infra = await import('@ai-team/core-infrastructure');
+      const req = require('sqlite3');
     `;
     const tempTestFile = path.join(monorepoRoot, 'packages/test-harness/temp-violation-test.tmp');
-    fs.writeFileSync(tempTestFile, mockContentWithIllegalImport, 'utf8');
+    fs.writeFileSync(tempTestFile, mockContent, 'utf8');
 
     try {
       const violations = checkFileImports(tempTestFile, [
         /^(node:)?fs/,
         /^@ai-team\/core-infrastructure/,
+        /sqlite3/,
       ]);
-      expect(violations.length).toBe(2);
+      expect(violations.length).toBe(3);
     } finally {
       if (fs.existsSync(tempTestFile)) {
         fs.unlinkSync(tempTestFile);
+      }
+    }
+  });
+
+  it('fails closed when package.json contains illegal dependency', () => {
+    const mockPkg = {
+      name: 'mock-pkg',
+      dependencies: {
+        '@ai-team/core-infrastructure': 'workspace:*',
+      },
+    };
+    const tempPkgFile = path.join(monorepoRoot, 'packages/test-harness/temp-pkg-test.tmp.json');
+    fs.writeFileSync(tempPkgFile, JSON.stringify(mockPkg), 'utf8');
+
+    try {
+      const violations = checkPackageJsonDependencies(tempPkgFile, ['@ai-team/core-domain']);
+      expect(violations.length).toBe(1);
+      expect(violations[0]).toContain('@ai-team/core-infrastructure');
+    } finally {
+      if (fs.existsSync(tempPkgFile)) {
+        fs.unlinkSync(tempPkgFile);
       }
     }
   });

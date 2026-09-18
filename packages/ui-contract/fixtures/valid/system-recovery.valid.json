@@ -1,11 +1,24 @@
 {
   "schemaVersion": "1.0.0",
   "recoveryId": "rec-001",
-  "triggerReason": "Transient worker disconnection",
-  "suggestedActions": [
-    "Retry with existing operationId",
-    "Restart worker runtime"
+  "target": {
+    "type": "WORKER",
+    "id": "worker-proc-01"
+  },
+  "status": "RECOVERING",
+  "whatHappened": "Transient worker disconnection detected",
+  "whatAiTeamIsDoing": "Attempting automatic handshake reconnection",
+  "whatUserShouldDo": "Wait for retry or trigger manual restart",
+  "recommendedActions": [
+    {
+      "actionCode": "RESTART_WORKER",
+      "targetId": "worker-proc-01",
+      "labelKey": "actions.restartWorker",
+      "requiresApproval": false,
+      "payloadParameters": {}
+    }
   ],
   "canAutoRecover": true,
   "initiatedAt": "2026-09-18T00:00:08.000Z"
 }
+

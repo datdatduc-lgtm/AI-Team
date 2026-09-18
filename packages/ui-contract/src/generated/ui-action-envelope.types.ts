@@ -5,12 +5,18 @@
  * Envelope for all actions dispatched from UI to Core in AI-Team v1.0.0
  */
 export interface UIActionEnvelope {
-  schemaVersion: string;
+  /**
+   * Strict UI Data Contract v1.0.0 schema version
+   */
+  schemaVersion: "1.0.0";
   actionId: string;
   /**
    * Identifies ONE logical operation. Must be reused across retries (timeout, reconnect, lost ACK).
    */
   operationId: string;
+  /**
+   * Baseline UI action intents
+   */
   intent:
     | "INITIALIZE_AI_TEAM"
     | "SET_SESSION_TEAM"
@@ -25,11 +31,18 @@ export interface UIActionEnvelope {
     | "EXECUTE_RECOMMENDED_ACTION"
     | "TERMINATE_SESSION";
   projectId: string;
-  sessionId?: string;
-  goalId?: string;
+  sessionId?: string | null;
+  goalId?: string | null;
   expectedStateRevision: number;
-  target?: string;
+  target?: TargetRef | null;
   parameters: {
     [k: string]: unknown | undefined;
   };
+}
+/**
+ * Target entity reference for actions, recovery, and routing
+ */
+export interface TargetRef {
+  type: "AGENT" | "WORKER" | "CAPABILITY" | "ROUTE" | "GOAL";
+  id: string;
 }

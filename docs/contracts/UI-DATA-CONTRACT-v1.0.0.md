@@ -26,12 +26,17 @@ The **JSON Schemas Draft 2020-12** located at `packages/ui-contract/schemas/` se
 - An agent does not directly equal a worker process.
 
 ### 2.4 Health vs Work State Decoupling
-- `HealthStatus`: `HEALTHY`, `DEGRADED`, `UNHEALTHY`, `UNKNOWN`.
-- `WorkState`: `IDLE`, `WORKING`, `PAUSED`, `STOPPED`, `DRAINING`.
-- A healthy agent/worker can be idle; an unhealthy worker can be stopped. The two states are never conflated.
+- `AgentHealthStatus`: `HEALTHY`, `DEGRADED`, `DISCONNECTED`, `OFF`.
+- `WorkerWorkState`: `IDLE`, `RUNNING`, `PAUSING_SAFEPOINT`, `PAUSED`, `RECOVERING`, `STUCK`, `TERMINATED`.
+- A healthy agent/worker can be idle; an off agent has no worker running. The two state domains are never conflated.
 
 ### 2.5 Strict Worker Ownership Enum
 - Allowed values: strictly `OWNED`, `BORROWED`, `FOREIGN`.
+
+### 2.6 Semantic Route, Capability, and Recovery Status
+- `RouteSemanticState`: `CONFIGURED`, `VERIFYING`, `READY`, `AUTH_REQUIRED`, `WRONG_CONVERSATION`, `MISSING`, `BROKEN`.
+- `CapabilityStatus`: `AVAILABLE`, `DISABLED`, `UNCONFIGURED`, `MISSING`, `INCOMPATIBLE`.
+- `RecoveryStatus`: `RECOVERING`, `WAITING_FOR_USER`, `BLOCKED`, `FAILED`.
 
 ---
 

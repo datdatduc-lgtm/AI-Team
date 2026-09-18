@@ -9,41 +9,33 @@
     "actionId",
     "operationId",
     "status",
-    "stateRevision",
+    "currentStateRevision",
+    "message",
     "emittedAt"
   ],
   "properties": {
     "schemaVersion": {
-      "type": "string",
-      "pattern": "^1\\.\\d+\\.\\d+$"
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
     },
     "actionId": {
-      "type": "string",
-      "minLength": 1
+      "$ref": "common.schema.json#/$defs/EntityId"
     },
     "operationId": {
-      "type": "string",
-      "minLength": 1
+      "$ref": "common.schema.json#/$defs/EntityId"
     },
     "status": {
-      "type": "string",
-      "enum": [
-        "ACCEPTED",
-        "REJECTED",
-        "REQUIRES_APPROVAL",
-        "CONFLICT",
-        "UNSUPPORTED"
-      ]
+      "$ref": "common.schema.json#/$defs/ActionResultStatus"
     },
     "operationState": {
-      "type": "string",
-      "enum": ["PENDING", "RUNNING", "SUCCEEDED", "FAILED"]
+      "$ref": "common.schema.json#/$defs/OperationState"
     },
-    "stateRevision": {
-      "type": "integer",
-      "minimum": 0
+    "currentStateRevision": {
+      "$ref": "common.schema.json#/$defs/StateRevision"
     },
-    "reason": {
+    "message": {
+      "type": "string"
+    },
+    "rejectionReason": {
       "type": "string"
     },
     "errors": {
@@ -53,12 +45,13 @@
       }
     },
     "payload": {
-      "type": "object"
+      "type": "object",
+      "additionalProperties": true
     },
     "emittedAt": {
-      "type": "string",
-      "format": "date-time"
+      "$ref": "common.schema.json#/$defs/IsoTimestamp"
     }
   },
   "additionalProperties": false
 }
+

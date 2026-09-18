@@ -19,6 +19,7 @@ describe('UI Contract v1.0.0 Valid Fixtures', () => {
     const result = defaultValidator.validateCoreEventEnvelope(fixture);
     expect(result.success).toBe(true);
     expect(result.data).toBeDefined();
+    expect(result.data?.schemaVersion).toBe('1.0.0');
   });
 
   it('validates UIActionEnvelope', () => {
@@ -26,6 +27,7 @@ describe('UI Contract v1.0.0 Valid Fixtures', () => {
     const result = defaultValidator.validateUIActionEnvelope(fixture);
     expect(result.success).toBe(true);
     expect(result.data?.operationId).toBe('op-logical-101');
+    expect(result.data?.target?.type).toBe('AGENT');
   });
 
   it('validates ActionResultPayload', () => {
@@ -33,6 +35,8 @@ describe('UI Contract v1.0.0 Valid Fixtures', () => {
     const result = defaultValidator.validateActionResultPayload(fixture);
     expect(result.success).toBe(true);
     expect(result.data?.status).toBe('ACCEPTED');
+    expect(result.data?.currentStateRevision).toBe(1);
+    expect(result.data?.message).toBe('Action accepted by core dispatcher');
   });
 
   it('validates SessionStatePayload', () => {
@@ -46,7 +50,10 @@ describe('UI Contract v1.0.0 Valid Fixtures', () => {
     const fixture = loadFixture('valid/goal-state.valid.json');
     const result = defaultValidator.validateGoalStatePayload(fixture);
     expect(result.success).toBe(true);
-    expect(result.data?.status).toBe('RUNNING');
+    expect(result.data?.goalState).toBe('RUNNING');
+    expect(result.data?.completedTaskCount).toBe(4);
+    expect(result.data?.totalTaskCount).toBe(10);
+    expect(result.data?.summaryText).toBe('Executing contract alignment');
   });
 
   it('validates AgentStatePayload', () => {
@@ -54,6 +61,8 @@ describe('UI Contract v1.0.0 Valid Fixtures', () => {
     const result = defaultValidator.validateAgentStatePayload(fixture);
     expect(result.success).toBe(true);
     expect(result.data?.healthStatus).toBe('HEALTHY');
+    expect(result.data?.agentType).toBe('ENGINEER');
+    expect(result.data?.statusSummary).toBe('Ready for instruction');
   });
 
   it('validates WorkerStatePayload with OWNED ownership', () => {
@@ -61,13 +70,16 @@ describe('UI Contract v1.0.0 Valid Fixtures', () => {
     const result = defaultValidator.validateWorkerStatePayload(fixture);
     expect(result.success).toBe(true);
     expect(result.data?.ownership).toBe('OWNED');
-    expect(result.data?.workState).toBe('WORKING');
+    expect(result.data?.workState).toBe('RUNNING');
+    expect(result.data?.displayName).toBe('Worker Process 01');
   });
 
   it('validates CapabilityRequirementPayload', () => {
     const fixture = loadFixture('valid/capability-requirement.valid.json');
     const result = defaultValidator.validateCapabilityRequirementPayload(fixture);
     expect(result.success).toBe(true);
+    expect(result.data?.status).toBe('AVAILABLE');
+    expect(result.data?.category).toBe('HOST');
     expect(result.data?.resolutionType).toBe('AUTOMATIC');
   });
 
@@ -82,13 +94,17 @@ describe('UI Contract v1.0.0 Valid Fixtures', () => {
     const fixture = loadFixture('valid/route-state.valid.json');
     const result = defaultValidator.validateRouteStatePayload(fixture);
     expect(result.success).toBe(true);
-    expect(result.data?.isFocused).toBe(true);
+    expect(result.data?.semanticState).toBe('READY');
+    expect(result.data?.targetAgentId).toBe('agent-codex-01');
+    expect(result.data?.capturedTargetName).toBe('CodeEditorView');
   });
 
   it('validates SystemRecoveryPayload', () => {
     const fixture = loadFixture('valid/system-recovery.valid.json');
     const result = defaultValidator.validateSystemRecoveryPayload(fixture);
     expect(result.success).toBe(true);
+    expect(result.data?.status).toBe('RECOVERING');
+    expect(result.data?.target.type).toBe('WORKER');
     expect(result.data?.canAutoRecover).toBe(true);
   });
 
@@ -96,6 +112,8 @@ describe('UI Contract v1.0.0 Valid Fixtures', () => {
     const fixture = loadFixture('valid/recommended-action.valid.json');
     const result = defaultValidator.validateRecommendedActionPayload(fixture);
     expect(result.success).toBe(true);
+    expect(result.data?.actionCode).toBe('ENABLE_FILE_ACCESS');
     expect(result.data?.requiresApproval).toBe(true);
   });
 });
+

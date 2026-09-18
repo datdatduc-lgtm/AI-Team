@@ -10,67 +10,58 @@
     "sessionId",
     "projectId",
     "title",
-    "status",
+    "goalState",
+    "summaryText",
+    "completedTaskCount",
+    "totalTaskCount",
     "assignedAgentIds",
     "stateRevision",
     "updatedAt"
   ],
   "properties": {
     "schemaVersion": {
-      "type": "string",
-      "pattern": "^1\\.\\d+\\.\\d+$"
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
     },
     "goalId": {
-      "type": "string",
-      "minLength": 1
+      "$ref": "common.schema.json#/$defs/EntityId"
     },
     "sessionId": {
-      "type": "string",
-      "minLength": 1
+      "$ref": "common.schema.json#/$defs/EntityId"
     },
     "projectId": {
-      "type": "string",
-      "minLength": 1
+      "$ref": "common.schema.json#/$defs/EntityId"
     },
     "title": {
       "type": "string",
       "minLength": 1
     },
-    "status": {
-      "type": "string",
-      "enum": [
-        "INTAKE",
-        "RESOLVING_CAPABILITIES",
-        "READY",
-        "RUNNING",
-        "PAUSING",
-        "PAUSED",
-        "RECOVERING",
-        "WAITING_FOR_USER",
-        "BLOCKED",
-        "FAILED",
-        "COMPLETED"
-      ]
+    "goalState": {
+      "$ref": "common.schema.json#/$defs/GoalStatus"
+    },
+    "summaryText": {
+      "type": "string"
+    },
+    "completedTaskCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "totalTaskCount": {
+      "type": "integer",
+      "minimum": 0
     },
     "assignedAgentIds": {
       "type": "array",
       "items": {
-        "type": "string"
+        "$ref": "common.schema.json#/$defs/EntityId"
       }
     },
-    "progress": {
-      "type": "number",
-      "minimum": 0,
-      "maximum": 100
-    },
     "stateRevision": {
-      "type": "integer",
-      "minimum": 0
+      "$ref": "common.schema.json#/$defs/StateRevision"
     },
     "updatedAt": {
-      "type": "string",
-      "format": "date-time"
+      "$ref": "common.schema.json#/$defs/IsoTimestamp"
     }
   },
   "additionalProperties": false
 }
+

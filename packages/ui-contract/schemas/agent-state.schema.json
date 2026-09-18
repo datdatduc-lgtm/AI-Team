@@ -8,32 +8,38 @@
     "schemaVersion",
     "agentId",
     "displayName",
+    "agentType",
     "healthStatus",
+    "statusSummary",
     "selectedForSession",
     "assignedToGoal",
     "sessionRole",
     "canContinueWithoutAgent",
     "userActionRequired",
+    "recommendedActions",
     "stateRevision",
     "updatedAt"
   ],
   "properties": {
     "schemaVersion": {
-      "type": "string",
-      "pattern": "^1\\.\\d+\\.\\d+$"
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
     },
     "agentId": {
-      "type": "string",
-      "minLength": 1
+      "$ref": "common.schema.json#/$defs/EntityId"
     },
     "displayName": {
       "type": "string",
       "minLength": 1
     },
-    "healthStatus": {
+    "agentType": {
       "type": "string",
-      "enum": ["HEALTHY", "DEGRADED", "UNHEALTHY", "UNKNOWN"],
-      "description": "Agent health status (strictly decoupled from worker execution state)"
+      "minLength": 1
+    },
+    "healthStatus": {
+      "$ref": "common.schema.json#/$defs/AgentHealthStatus"
+    },
+    "statusSummary": {
+      "type": "string"
     },
     "selectedForSession": {
       "type": "boolean"
@@ -57,14 +63,19 @@
     "userActionPrompt": {
       "type": "string"
     },
+    "recommendedActions": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/RecommendedActionRef"
+      }
+    },
     "stateRevision": {
-      "type": "integer",
-      "minimum": 0
+      "$ref": "common.schema.json#/$defs/StateRevision"
     },
     "updatedAt": {
-      "type": "string",
-      "format": "date-time"
+      "$ref": "common.schema.json#/$defs/IsoTimestamp"
     }
   },
   "additionalProperties": false
 }
+

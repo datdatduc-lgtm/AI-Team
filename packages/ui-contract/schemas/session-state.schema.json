@@ -15,28 +15,16 @@
   ],
   "properties": {
     "schemaVersion": {
-      "type": "string",
-      "pattern": "^1\\.\\d+\\.\\d+$"
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
     },
     "sessionId": {
-      "type": "string",
-      "minLength": 1
+      "$ref": "common.schema.json#/$defs/EntityId"
     },
     "projectId": {
-      "type": "string",
-      "minLength": 1
+      "$ref": "common.schema.json#/$defs/EntityId"
     },
     "status": {
-      "type": "string",
-      "enum": [
-        "OFF",
-        "STARTING",
-        "CHECKING_READINESS",
-        "READY",
-        "READY_DEGRADED",
-        "BLOCKED",
-        "ENDING"
-      ]
+      "$ref": "common.schema.json#/$defs/SessionStatus"
     },
     "activeGoalId": {
       "type": ["string", "null"]
@@ -44,17 +32,16 @@
     "selectedAgentIds": {
       "type": "array",
       "items": {
-        "type": "string"
+        "$ref": "common.schema.json#/$defs/EntityId"
       }
     },
     "stateRevision": {
-      "type": "integer",
-      "minimum": 0
+      "$ref": "common.schema.json#/$defs/StateRevision"
     },
     "updatedAt": {
-      "type": "string",
-      "format": "date-time"
+      "$ref": "common.schema.json#/$defs/IsoTimestamp"
     }
   },
   "additionalProperties": false
 }
+

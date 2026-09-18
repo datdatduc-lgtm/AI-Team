@@ -7,7 +7,8 @@
   "$defs": {
     "SchemaVersion": {
       "type": "string",
-      "pattern": "^1\\.\\d+\\.\\d+$"
+      "const": "1.0.0",
+      "description": "Strict UI Data Contract v1.0.0 schema version"
     },
     "EntityId": {
       "type": "string",
@@ -31,15 +32,23 @@
       "enum": ["OWNED", "BORROWED", "FOREIGN"],
       "description": "Strict worker ownership classification"
     },
-    "HealthStatus": {
+    "AgentHealthStatus": {
       "type": "string",
-      "enum": ["HEALTHY", "DEGRADED", "UNHEALTHY", "UNKNOWN"],
-      "description": "Agent/component health status"
+      "enum": ["HEALTHY", "DEGRADED", "DISCONNECTED", "OFF"],
+      "description": "Agent health status strictly decoupled from worker execution state"
     },
-    "WorkState": {
+    "WorkerWorkState": {
       "type": "string",
-      "enum": ["IDLE", "WORKING", "PAUSED", "STOPPED", "DRAINING"],
-      "description": "Worker execution state"
+      "enum": [
+        "IDLE",
+        "RUNNING",
+        "PAUSING_SAFEPOINT",
+        "PAUSED",
+        "RECOVERING",
+        "STUCK",
+        "TERMINATED"
+      ],
+      "description": "Worker execution state strictly decoupled from agent health status"
     },
     "UIActionIntent": {
       "type": "string",
@@ -104,6 +113,78 @@
         "COMPLETED"
       ],
       "description": "Goal lifecycle state"
+    },
+    "CapabilityStatus": {
+      "type": "string",
+      "enum": ["AVAILABLE", "DISABLED", "UNCONFIGURED", "MISSING", "INCOMPATIBLE"],
+      "description": "Capability availability status"
+    },
+    "CapabilityCategory": {
+      "type": "string",
+      "enum": ["HOST", "MODEL", "TOOL", "INTEGRATION", "SYSTEM"],
+      "description": "Capability classification category"
+    },
+    "RouteSemanticState": {
+      "type": "string",
+      "enum": [
+        "CONFIGURED",
+        "VERIFYING",
+        "READY",
+        "AUTH_REQUIRED",
+        "WRONG_CONVERSATION",
+        "MISSING",
+        "BROKEN"
+      ],
+      "description": "Semantic route state"
+    },
+    "RecoveryStatus": {
+      "type": "string",
+      "enum": ["RECOVERING", "WAITING_FOR_USER", "BLOCKED", "FAILED"],
+      "description": "System recovery status"
+    },
+    "TargetRef": {
+      "type": "object",
+      "description": "Target entity reference for actions, recovery, and routing",
+      "required": ["type", "id"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["AGENT", "WORKER", "CAPABILITY", "ROUTE", "GOAL"]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "RecommendedActionRef": {
+      "type": "object",
+      "description": "Recommended action definition",
+      "required": ["actionCode", "targetId", "labelKey", "requiresApproval"],
+      "properties": {
+        "actionCode": {
+          "type": "string",
+          "minLength": 1
+        },
+        "targetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "labelKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requiresApproval": {
+          "type": "boolean"
+        },
+        "payloadParameters": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
     }
   }
 }
+

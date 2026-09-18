@@ -8,38 +8,58 @@
     "schemaVersion",
     "requirementId",
     "capabilityId",
+    "capabilityName",
+    "category",
     "description",
-    "resolved",
-    "resolutionType"
+    "status",
+    "resolutionType",
+    "alternatives",
+    "recommendedActions"
   ],
   "properties": {
     "schemaVersion": {
-      "type": "string",
-      "pattern": "^1\\.\\d+\\.\\d+$"
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
     },
     "requirementId": {
+      "$ref": "common.schema.json#/$defs/EntityId"
+    },
+    "capabilityId": {
+      "$ref": "common.schema.json#/$defs/EntityId"
+    },
+    "capabilityName": {
       "type": "string",
       "minLength": 1
     },
-    "capabilityId": {
-      "type": "string",
-      "minLength": 1
+    "category": {
+      "$ref": "common.schema.json#/$defs/CapabilityCategory"
     },
     "description": {
       "type": "string",
       "minLength": 1
     },
-    "resolved": {
-      "type": "boolean"
+    "status": {
+      "$ref": "common.schema.json#/$defs/CapabilityStatus"
     },
     "resolutionType": {
       "type": "string",
       "enum": ["AUTOMATIC", "USER_APPROVAL", "HOST_PERMISSION", "UNSUPPORTED"]
     },
+    "alternatives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommendedActions": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/RecommendedActionRef"
+      }
+    },
     "resolvedAt": {
-      "type": "string",
-      "format": "date-time"
+      "$ref": "common.schema.json#/$defs/IsoTimestamp"
     }
   },
   "additionalProperties": false
 }
+

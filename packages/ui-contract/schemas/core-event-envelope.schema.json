@@ -16,42 +16,38 @@
   ],
   "properties": {
     "schemaVersion": {
-      "type": "string",
-      "pattern": "^1\\.\\d+\\.\\d+$"
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
     },
     "eventId": {
-      "type": "string",
-      "minLength": 1
+      "$ref": "common.schema.json#/$defs/EntityId"
     },
     "eventType": {
       "type": "string",
       "minLength": 1
     },
     "emittedAt": {
-      "type": "string",
-      "format": "date-time"
+      "$ref": "common.schema.json#/$defs/IsoTimestamp"
     },
     "projectId": {
-      "type": "string",
-      "minLength": 1
+      "$ref": "common.schema.json#/$defs/EntityId"
     },
     "sessionId": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "goalId": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "stateRevision": {
-      "type": "integer",
-      "minimum": 0
+      "$ref": "common.schema.json#/$defs/StateRevision"
     },
     "sequence": {
-      "type": "integer",
-      "minimum": 0
+      "$ref": "common.schema.json#/$defs/SequenceNumber"
     },
     "payload": {
-      "type": "object"
+      "type": "object",
+      "additionalProperties": true
     }
   },
   "additionalProperties": false
 }
+

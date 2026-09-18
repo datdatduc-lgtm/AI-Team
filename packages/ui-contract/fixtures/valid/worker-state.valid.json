@@ -1,9 +1,10 @@
 {
   "schemaVersion": "1.0.0",
   "workerId": "worker-proc-01",
+  "displayName": "Worker Process 01",
   "ownedByAgentId": "agent-codex-01",
   "currentTaskSummary": "Validating AST import boundaries",
-  "workState": "WORKING",
+  "workState": "RUNNING",
   "supportsPauseSafepoint": true,
   "ownership": "OWNED",
   "telemetry": {
@@ -14,3 +15,4 @@
   "stateRevision": 4,
   "updatedAt": "2026-09-18T00:00:05.000Z"
 }
+

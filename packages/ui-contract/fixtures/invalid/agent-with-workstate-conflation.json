@@ -2,13 +2,17 @@
   "schemaVersion": "1.0.0",
   "agentId": "agent-01",
   "displayName": "Agent",
+  "agentType": "ENGINEER",
   "healthStatus": "HEALTHY",
-  "workState": "WORKING",
+  "statusSummary": "Ready",
+  "workState": "RUNNING",
   "selectedForSession": true,
   "assignedToGoal": false,
   "sessionRole": "coder",
   "canContinueWithoutAgent": true,
   "userActionRequired": false,
+  "recommendedActions": [],
   "stateRevision": 1,
   "updatedAt": "2026-09-18T00:00:00.000Z"
 }
+

@@ -5,7 +5,10 @@
  * Extensible registry of host environment capabilities
  */
 export interface HostCapabilityRegistryPayload {
-  schemaVersion: string;
+  /**
+   * Strict UI Data Contract v1.0.0 schema version
+   */
+  schemaVersion: "1.0.0";
   capabilities: {
     [k: string]:
       | {

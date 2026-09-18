@@ -5,13 +5,16 @@
  * Envelope for all events dispatched by Core to UI in AI-Team v1.0.0
  */
 export interface CoreEventEnvelope {
-  schemaVersion: string;
+  /**
+   * Strict UI Data Contract v1.0.0 schema version
+   */
+  schemaVersion: "1.0.0";
   eventId: string;
   eventType: string;
   emittedAt: string;
   projectId: string;
-  sessionId?: string;
-  goalId?: string;
+  sessionId?: string | null;
+  goalId?: string | null;
   stateRevision: number;
   sequence: number;
   payload: {

@@ -2,8 +2,13 @@
   "schemaVersion": "1.0.0",
   "requirementId": "req-001",
   "capabilityId": "host.file.openFolder",
+  "capabilityName": "Host Folder Access",
+  "category": "HOST",
   "description": "Requires filesystem workspace folder access",
-  "resolved": true,
+  "status": "AVAILABLE",
   "resolutionType": "AUTOMATIC",
+  "alternatives": [],
+  "recommendedActions": [],
   "resolvedAt": "2026-09-18T00:00:06.000Z"
 }
+

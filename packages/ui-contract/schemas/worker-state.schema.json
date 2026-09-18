@@ -7,6 +7,7 @@
   "required": [
     "schemaVersion",
     "workerId",
+    "displayName",
     "ownedByAgentId",
     "workState",
     "supportsPauseSafepoint",
@@ -16,32 +17,29 @@
   ],
   "properties": {
     "schemaVersion": {
-      "type": "string",
-      "pattern": "^1\\.\\d+\\.\\d+$"
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
     },
     "workerId": {
+      "$ref": "common.schema.json#/$defs/EntityId"
+    },
+    "displayName": {
       "type": "string",
       "minLength": 1
     },
     "ownedByAgentId": {
-      "type": "string",
-      "minLength": 1
+      "$ref": "common.schema.json#/$defs/EntityId"
     },
     "currentTaskSummary": {
       "type": "string"
     },
     "workState": {
-      "type": "string",
-      "enum": ["IDLE", "WORKING", "PAUSED", "STOPPED", "DRAINING"],
-      "description": "Runtime execution work state (strictly decoupled from health status)"
+      "$ref": "common.schema.json#/$defs/WorkerWorkState"
     },
     "supportsPauseSafepoint": {
       "type": "boolean"
     },
     "ownership": {
-      "type": "string",
-      "enum": ["OWNED", "BORROWED", "FOREIGN"],
-      "description": "Strict worker process ownership classification"
+      "$ref": "common.schema.json#/$defs/Ownership"
     },
     "telemetry": {
       "type": "object",
@@ -63,13 +61,12 @@
       "additionalProperties": false
     },
     "stateRevision": {
-      "type": "integer",
-      "minimum": 0
+      "$ref": "common.schema.json#/$defs/StateRevision"
     },
     "updatedAt": {
-      "type": "string",
-      "format": "date-time"
+      "$ref": "common.schema.json#/$defs/IsoTimestamp"
     }
   },
   "additionalProperties": false
 }
+

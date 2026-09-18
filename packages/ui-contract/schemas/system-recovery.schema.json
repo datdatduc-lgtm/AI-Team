@@ -7,38 +7,53 @@
   "required": [
     "schemaVersion",
     "recoveryId",
-    "triggerReason",
-    "suggestedActions",
+    "target",
+    "status",
+    "whatHappened",
+    "whatAiTeamIsDoing",
+    "whatUserShouldDo",
+    "recommendedActions",
     "canAutoRecover",
     "initiatedAt"
   ],
   "properties": {
     "schemaVersion": {
-      "type": "string",
-      "pattern": "^1\\.\\d+\\.\\d+$"
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
     },
     "recoveryId": {
+      "$ref": "common.schema.json#/$defs/EntityId"
+    },
+    "target": {
+      "$ref": "common.schema.json#/$defs/TargetRef"
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/RecoveryStatus"
+    },
+    "whatHappened": {
       "type": "string",
       "minLength": 1
     },
-    "triggerReason": {
+    "whatAiTeamIsDoing": {
       "type": "string",
       "minLength": 1
     },
-    "suggestedActions": {
+    "whatUserShouldDo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "recommendedActions": {
       "type": "array",
       "items": {
-        "type": "string"
-      },
-      "minItems": 1
+        "$ref": "common.schema.json#/$defs/RecommendedActionRef"
+      }
     },
     "canAutoRecover": {
       "type": "boolean"
     },
     "initiatedAt": {
-      "type": "string",
-      "format": "date-time"
+      "$ref": "common.schema.json#/$defs/IsoTimestamp"
     }
   },
   "additionalProperties": false
 }
+

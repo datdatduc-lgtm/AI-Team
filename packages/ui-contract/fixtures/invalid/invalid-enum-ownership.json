@@ -1,10 +1,12 @@
 {
   "schemaVersion": "1.0.0",
   "workerId": "worker-01",
+  "displayName": "Worker 01",
   "ownedByAgentId": "agent-01",
-  "workState": "WORKING",
+  "workState": "RUNNING",
   "supportsPauseSafepoint": true,
   "ownership": "SHARED",
   "stateRevision": 1,
   "updatedAt": "2026-09-18T00:00:00.000Z"
 }
+

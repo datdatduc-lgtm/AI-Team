@@ -6,7 +6,12 @@
   "projectId": "proj-alpha",
   "sessionId": "sess-001",
   "expectedStateRevision": 0,
+  "target": {
+    "type": "AGENT",
+    "id": "agent-codex-01"
+  },
   "parameters": {
     "teamRole": "architect"
   }
 }
+
