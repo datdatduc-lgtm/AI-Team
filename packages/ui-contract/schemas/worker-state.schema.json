@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-team.dev/schemas/v1/worker-state.schema.json",
+  "title": "WorkerStatePayload",
+  "description": "Managed local execution runtime state (independent from Agent logical persona)",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "workerId",
+    "ownedByAgentId",
+    "workState",
+    "supportsPauseSafepoint",
+    "ownership",
+    "stateRevision",
+    "updatedAt"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.\\d+\\.\\d+$"
+    },
+    "workerId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownedByAgentId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "currentTaskSummary": {
+      "type": "string"
+    },
+    "workState": {
+      "type": "string",
+      "enum": ["IDLE", "WORKING", "PAUSED", "STOPPED", "DRAINING"],
+      "description": "Runtime execution work state (strictly decoupled from health status)"
+    },
+    "supportsPauseSafepoint": {
+      "type": "boolean"
+    },
+    "ownership": {
+      "type": "string",
+      "enum": ["OWNED", "BORROWED", "FOREIGN"],
+      "description": "Strict worker process ownership classification"
+    },
+    "telemetry": {
+      "type": "object",
+      "properties": {
+        "cpuPercent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "memoryMb": {
+          "type": "number",
+          "minimum": 0
+        },
+        "uptimeSeconds": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "stateRevision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

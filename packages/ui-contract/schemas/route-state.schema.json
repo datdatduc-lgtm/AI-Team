@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-team.dev/schemas/v1/route-state.schema.json",
+  "title": "RouteStatePayload",
+  "description": "Host and application route focus and view state",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "routeId",
+    "routeName",
+    "isFocused",
+    "activeView",
+    "updatedAt"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.\\d+\\.\\d+$"
+    },
+    "routeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "routeName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "isFocused": {
+      "type": "boolean"
+    },
+    "activeView": {
+      "type": "string",
+      "minLength": 1
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-team.dev/schemas/v1/agent-state.schema.json",
+  "title": "AgentStatePayload",
+  "description": "Logical AI team member state (independent from Worker managed execution runtime)",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "agentId",
+    "displayName",
+    "healthStatus",
+    "selectedForSession",
+    "assignedToGoal",
+    "sessionRole",
+    "canContinueWithoutAgent",
+    "userActionRequired",
+    "stateRevision",
+    "updatedAt"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.\\d+\\.\\d+$"
+    },
+    "agentId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "healthStatus": {
+      "type": "string",
+      "enum": ["HEALTHY", "DEGRADED", "UNHEALTHY", "UNKNOWN"],
+      "description": "Agent health status (strictly decoupled from worker execution state)"
+    },
+    "selectedForSession": {
+      "type": "boolean"
+    },
+    "assignedToGoal": {
+      "type": "boolean"
+    },
+    "sessionRole": {
+      "type": "string",
+      "minLength": 1
+    },
+    "goalRole": {
+      "type": "string"
+    },
+    "canContinueWithoutAgent": {
+      "type": "boolean"
+    },
+    "userActionRequired": {
+      "type": "boolean"
+    },
+    "userActionPrompt": {
+      "type": "string"
+    },
+    "stateRevision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-team.dev/schemas/v1/ui-action-envelope.schema.json",
+  "title": "UIActionEnvelope",
+  "description": "Envelope for all actions dispatched from UI to Core in AI-Team v1.0.0",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "actionId",
+    "operationId",
+    "intent",
+    "projectId",
+    "expectedStateRevision",
+    "parameters"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.\\d+\\.\\d+$"
+    },
+    "actionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operationId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifies ONE logical operation. Must be reused across retries (timeout, reconnect, lost ACK)."
+    },
+    "intent": {
+      "type": "string",
+      "enum": [
+        "INITIALIZE_AI_TEAM",
+        "SET_SESSION_TEAM",
+        "CHECK_SESSION_READINESS",
+        "CAPTURE_FOCUSED_ROUTE",
+        "SUBMIT_GOAL",
+        "ENABLE_CAPABILITY",
+        "RESOLVE_CAPABILITY_REQUIREMENT",
+        "START_GOAL_EXECUTION",
+        "STOP_CURRENT_GOAL",
+        "PAUSE_WORKER_SAFEPOINT",
+        "EXECUTE_RECOMMENDED_ACTION",
+        "TERMINATE_SESSION"
+      ]
+    },
+    "projectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sessionId": {
+      "type": "string"
+    },
+    "goalId": {
+      "type": "string"
+    },
+    "expectedStateRevision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "target": {
+      "type": "string"
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "actionId": "act-001",
+  "intent": "INITIALIZE_AI_TEAM",
+  "projectId": "proj-alpha",
+  "expectedStateRevision": 0,
+  "parameters": {}
+}

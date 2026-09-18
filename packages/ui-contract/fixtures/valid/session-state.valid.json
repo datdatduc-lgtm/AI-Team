@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "sessionId": "sess-001",
+  "projectId": "proj-alpha",
+  "status": "READY",
+  "activeGoalId": "goal-001",
+  "selectedAgentIds": ["agent-codex-01", "agent-architect-01"],
+  "stateRevision": 2,
+  "updatedAt": "2026-09-18T00:00:02.000Z"
+}

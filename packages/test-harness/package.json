@@ -1,0 +1,27 @@
+{
+  "name": "@ai-team/test-harness",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-team/core-domain": "workspace:*",
+    "@ai-team/core-application": "workspace:*",
+    "@ai-team/core-infrastructure": "workspace:*",
+    "@ai-team/ui-contract": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

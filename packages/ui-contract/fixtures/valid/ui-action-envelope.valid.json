@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0.0",
+  "actionId": "act-001",
+  "operationId": "op-logical-101",
+  "intent": "INITIALIZE_AI_TEAM",
+  "projectId": "proj-alpha",
+  "sessionId": "sess-001",
+  "expectedStateRevision": 0,
+  "parameters": {
+    "teamRole": "architect"
+  }
+}

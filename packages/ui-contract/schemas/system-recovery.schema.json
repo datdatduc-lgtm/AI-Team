@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-team.dev/schemas/v1/system-recovery.schema.json",
+  "title": "SystemRecoveryPayload",
+  "description": "System recovery state and guidance when recovery is needed",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "recoveryId",
+    "triggerReason",
+    "suggestedActions",
+    "canAutoRecover",
+    "initiatedAt"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.\\d+\\.\\d+$"
+    },
+    "recoveryId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "triggerReason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "suggestedActions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "canAutoRecover": {
+      "type": "boolean"
+    },
+    "initiatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-team.dev/schemas/v1/recommended-action.schema.json",
+  "title": "RecommendedActionPayload",
+  "description": "Proactive action recommendation suggested by Core for UI execution",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "recommendationId",
+    "title",
+    "intent",
+    "parameters",
+    "reason",
+    "confidenceScore",
+    "requiresApproval"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.\\d+\\.\\d+$"
+    },
+    "recommendationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "intent": {
+      "type": "string",
+      "enum": [
+        "INITIALIZE_AI_TEAM",
+        "SET_SESSION_TEAM",
+        "CHECK_SESSION_READINESS",
+        "CAPTURE_FOCUSED_ROUTE",
+        "SUBMIT_GOAL",
+        "ENABLE_CAPABILITY",
+        "RESOLVE_CAPABILITY_REQUIREMENT",
+        "START_GOAL_EXECUTION",
+        "STOP_CURRENT_GOAL",
+        "PAUSE_WORKER_SAFEPOINT",
+        "EXECUTE_RECOMMENDED_ACTION",
+        "TERMINATE_SESSION"
+      ]
+    },
+    "parameters": {
+      "type": "object"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "confidenceScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "requiresApproval": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false
+}

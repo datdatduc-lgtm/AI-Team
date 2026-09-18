@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0.0",
+  "capabilities": {
+    "host.file.openFolder": {
+      "supported": true,
+      "description": "Allows opening folders in host environment"
+    },
+    "host.terminal.attach": {
+      "supported": true,
+      "description": "Allows terminal interaction"
+    },
+    "host.window.focus": {
+      "supported": false
+    },
+    "host.notifications": {
+      "supported": true
+    },
+    "host.nativePreview": {
+      "supported": false
+    }
+  }
+}

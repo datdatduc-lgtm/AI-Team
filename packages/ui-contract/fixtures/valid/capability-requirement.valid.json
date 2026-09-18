@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0.0",
+  "requirementId": "req-001",
+  "capabilityId": "host.file.openFolder",
+  "description": "Requires filesystem workspace folder access",
+  "resolved": true,
+  "resolutionType": "AUTOMATIC",
+  "resolvedAt": "2026-09-18T00:00:06.000Z"
+}

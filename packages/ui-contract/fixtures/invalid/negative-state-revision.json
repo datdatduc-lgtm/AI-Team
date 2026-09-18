@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0.0",
+  "sessionId": "sess-001",
+  "projectId": "proj-alpha",
+  "status": "READY",
+  "selectedAgentIds": ["agent-01"],
+  "stateRevision": -5,
+  "updatedAt": "2026-09-18T00:00:00.000Z"
+}

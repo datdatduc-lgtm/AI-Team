@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-team.dev/schemas/v1/session-state.schema.json",
+  "title": "SessionStatePayload",
+  "description": "Session aggregate state (independent from Goal state)",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "sessionId",
+    "projectId",
+    "status",
+    "selectedAgentIds",
+    "stateRevision",
+    "updatedAt"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.\\d+\\.\\d+$"
+    },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "projectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "OFF",
+        "STARTING",
+        "CHECKING_READINESS",
+        "READY",
+        "READY_DEGRADED",
+        "BLOCKED",
+        "ENDING"
+      ]
+    },
+    "activeGoalId": {
+      "type": ["string", "null"]
+    },
+    "selectedAgentIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "stateRevision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

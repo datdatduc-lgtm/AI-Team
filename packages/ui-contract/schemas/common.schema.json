@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-team.dev/schemas/v1/common.schema.json",
+  "title": "CommonTypes",
+  "description": "Common primitive definitions and enums for AI-Team UI Data Contract v1.0.0",
+  "type": "object",
+  "$defs": {
+    "SchemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.\\d+\\.\\d+$"
+    },
+    "EntityId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "IsoTimestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "StateRevision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "SequenceNumber": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "Ownership": {
+      "type": "string",
+      "enum": ["OWNED", "BORROWED", "FOREIGN"],
+      "description": "Strict worker ownership classification"
+    },
+    "HealthStatus": {
+      "type": "string",
+      "enum": ["HEALTHY", "DEGRADED", "UNHEALTHY", "UNKNOWN"],
+      "description": "Agent/component health status"
+    },
+    "WorkState": {
+      "type": "string",
+      "enum": ["IDLE", "WORKING", "PAUSED", "STOPPED", "DRAINING"],
+      "description": "Worker execution state"
+    },
+    "UIActionIntent": {
+      "type": "string",
+      "enum": [
+        "INITIALIZE_AI_TEAM",
+        "SET_SESSION_TEAM",
+        "CHECK_SESSION_READINESS",
+        "CAPTURE_FOCUSED_ROUTE",
+        "SUBMIT_GOAL",
+        "ENABLE_CAPABILITY",
+        "RESOLVE_CAPABILITY_REQUIREMENT",
+        "START_GOAL_EXECUTION",
+        "STOP_CURRENT_GOAL",
+        "PAUSE_WORKER_SAFEPOINT",
+        "EXECUTE_RECOMMENDED_ACTION",
+        "TERMINATE_SESSION"
+      ],
+      "description": "Baseline UI action intents"
+    },
+    "ActionResultStatus": {
+      "type": "string",
+      "enum": [
+        "ACCEPTED",
+        "REJECTED",
+        "REQUIRES_APPROVAL",
+        "CONFLICT",
+        "UNSUPPORTED"
+      ],
+      "description": "Action admission result status"
+    },
+    "OperationState": {
+      "type": "string",
+      "enum": ["PENDING", "RUNNING", "SUCCEEDED", "FAILED"],
+      "description": "Long-running operation execution state"
+    },
+    "SessionStatus": {
+      "type": "string",
+      "enum": [
+        "OFF",
+        "STARTING",
+        "CHECKING_READINESS",
+        "READY",
+        "READY_DEGRADED",
+        "BLOCKED",
+        "ENDING"
+      ],
+      "description": "Session lifecycle state"
+    },
+    "GoalStatus": {
+      "type": "string",
+      "enum": [
+        "INTAKE",
+        "RESOLVING_CAPABILITIES",
+        "READY",
+        "RUNNING",
+        "PAUSING",
+        "PAUSED",
+        "RECOVERING",
+        "WAITING_FOR_USER",
+        "BLOCKED",
+        "FAILED",
+        "COMPLETED"
+      ],
+      "description": "Goal lifecycle state"
+    }
+  }
+}

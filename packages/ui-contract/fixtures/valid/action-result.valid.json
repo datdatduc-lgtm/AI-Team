@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "actionId": "act-001",
+  "operationId": "op-logical-101",
+  "status": "ACCEPTED",
+  "operationState": "RUNNING",
+  "stateRevision": 1,
+  "reason": "Action accepted by core dispatcher",
+  "emittedAt": "2026-09-18T00:00:01.000Z"
+}

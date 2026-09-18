@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "workerId": "worker-proc-01",
+  "ownedByAgentId": "agent-codex-01",
+  "currentTaskSummary": "Validating AST import boundaries",
+  "workState": "WORKING",
+  "supportsPauseSafepoint": true,
+  "ownership": "OWNED",
+  "telemetry": {
+    "cpuPercent": 12.4,
+    "memoryMb": 256.8,
+    "uptimeSeconds": 120
+  },
+  "stateRevision": 4,
+  "updatedAt": "2026-09-18T00:00:05.000Z"
+}

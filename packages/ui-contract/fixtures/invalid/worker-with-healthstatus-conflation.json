@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0.0",
+  "workerId": "worker-01",
+  "ownedByAgentId": "agent-01",
+  "healthStatus": "HEALTHY",
+  "workState": "WORKING",
+  "supportsPauseSafepoint": true,
+  "ownership": "OWNED",
+  "stateRevision": 1,
+  "updatedAt": "2026-09-18T00:00:00.000Z"
+}

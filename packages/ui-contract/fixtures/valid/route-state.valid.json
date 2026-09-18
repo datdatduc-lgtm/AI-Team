@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "routeId": "route-editor-main",
+  "routeName": "Main Code Editor",
+  "isFocused": true,
+  "activeView": "split-diff",
+  "updatedAt": "2026-09-18T00:00:07.000Z"
+}

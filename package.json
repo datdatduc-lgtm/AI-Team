@@ -1,0 +1,20 @@
+{
+  "name": "ai-team-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI-Team Monorepo - P0.0/P0.1 Foundation & Protocol Contracts",
+  "scripts": {
+    "codegen:types": "pnpm --filter @ai-team/ui-contract codegen",
+    "build": "pnpm -r build",
+    "test": "vitest run",
+    "test:guard": "vitest run packages/test-harness/tests/architecture-guard.test.ts",
+    "test:schema": "vitest run packages/ui-contract/tests",
+    "test:harness": "vitest run packages/test-harness/tests",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

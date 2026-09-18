@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0.0",
+  "goalId": "goal-001",
+  "sessionId": "sess-001",
+  "projectId": "proj-alpha",
+  "title": "Implement Hexagonal Architecture Skeleton",
+  "status": "RUNNING",
+  "assignedAgentIds": ["agent-codex-01"],
+  "progress": 45.5,
+  "stateRevision": 3,
+  "updatedAt": "2026-09-18T00:00:03.000Z"
+}

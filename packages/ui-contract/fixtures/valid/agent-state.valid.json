@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0.0",
+  "agentId": "agent-codex-01",
+  "displayName": "Codex Engineer",
+  "healthStatus": "HEALTHY",
+  "selectedForSession": true,
+  "assignedToGoal": true,
+  "sessionRole": "Code Implementation",
+  "goalRole": "Primary Implementer",
+  "canContinueWithoutAgent": false,
+  "userActionRequired": false,
+  "stateRevision": 1,
+  "updatedAt": "2026-09-18T00:00:04.000Z"
+}

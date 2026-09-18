@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-team.dev/schemas/v1/goal-state.schema.json",
+  "title": "GoalStatePayload",
+  "description": "Goal aggregate state (independent from Session state)",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "goalId",
+    "sessionId",
+    "projectId",
+    "title",
+    "status",
+    "assignedAgentIds",
+    "stateRevision",
+    "updatedAt"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.\\d+\\.\\d+$"
+    },
+    "goalId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "projectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "INTAKE",
+        "RESOLVING_CAPABILITIES",
+        "READY",
+        "RUNNING",
+        "PAUSING",
+        "PAUSED",
+        "RECOVERING",
+        "WAITING_FOR_USER",
+        "BLOCKED",
+        "FAILED",
+        "COMPLETED"
+      ]
+    },
+    "assignedAgentIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "progress": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "stateRevision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

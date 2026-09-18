@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0.0",
+  "actionId": "act-001",
+  "operationId": "op-001",
+  "intent": "UNSUPPORTED_HACK_INTENT",
+  "projectId": "proj-alpha",
+  "expectedStateRevision": 0,
+  "parameters": {}
+}

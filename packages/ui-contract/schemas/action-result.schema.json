@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-team.dev/schemas/v1/action-result.schema.json",
+  "title": "ActionResultPayload",
+  "description": "Result envelope returned synchronously or via ACK for a UIActionEnvelope",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "actionId",
+    "operationId",
+    "status",
+    "stateRevision",
+    "emittedAt"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.\\d+\\.\\d+$"
+    },
+    "actionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ACCEPTED",
+        "REJECTED",
+        "REQUIRES_APPROVAL",
+        "CONFLICT",
+        "UNSUPPORTED"
+      ]
+    },
+    "operationState": {
+      "type": "string",
+      "enum": ["PENDING", "RUNNING", "SUCCEEDED", "FAILED"]
+    },
+    "stateRevision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "reason": {
+      "type": "string"
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "payload": {
+      "type": "object"
+    },
+    "emittedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}
