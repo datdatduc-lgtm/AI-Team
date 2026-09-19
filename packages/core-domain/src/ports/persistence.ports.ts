@@ -17,6 +17,15 @@ export interface EventStorePort {
   getEventsByGoal(goalId: string, fromSequence?: number): Promise<readonly StoredEvent[]>;
 }
 
+export interface DurableCommit {
+  readonly event: StoredEvent;
+  readonly outboxMessages: readonly OutboxMessage[];
+}
+
+export interface DurableCommitPort {
+  commitEventAndOutbox(commit: DurableCommit): Promise<void>;
+}
+
 export interface Snapshot<T = unknown> {
   readonly snapshotId: string;
   readonly aggregateId: string;

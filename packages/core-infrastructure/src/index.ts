@@ -57,3 +57,5 @@ export class BasicRedactionAdapter implements RedactionPort {
     return JSON.parse(redacted) as T;
   }
 }
+
+export * from './persistence/sqlite-durable-store.js';
