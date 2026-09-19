@@ -203,6 +203,28 @@ describe('P0.3 SQLite durable persistence', () => {
     expect((await store.getEventsByProject('project-A')).map((item) => item.eventId)).toEqual(['old-event']);
     expect((await store.find('old-operation'))?.operationId).toBe('old-operation');
     expect(check.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'action_results'").get()).toBeTruthy();
+    const newResult: StoredActionResult = {
+      resultId: 'new-result', operationId: 'new-operation', actionId: 'new-action', status: 'ACCEPTED',
+      currentStateRevision: 2, emittedAt: clock.now(),
+    };
+    const newEvent = event(2);
+    const newMessage = { messageId: 'new-message', topic: 'domain.event', payload: newEvent, createdAt: clock.now() };
+    await store.commitAction({
+      dedupeRecord: {
+        operationId: 'new-operation', actionId: 'new-action', intent: 'INITIALIZE_AI_TEAM', status: 'ACCEPTED',
+        firstSeenAt: clock.now(), lastSeenAt: clock.now(), resultRef: newResult.resultId,
+        projectId: 'project-A', requestFingerprint: 'new-fingerprint',
+      },
+      actionResult: newResult, event: newEvent, outboxMessages: [newMessage],
+    });
+    expect((await store.find('old-operation'))?.operationId).toBe('old-operation');
+    expect(await store.find('new-operation')).toMatchObject({ operationId: 'new-operation', resultRef: 'new-result' });
+    expect(await store.getByOperationId('new-operation')).toEqual(newResult);
+    expect((await store.getEventsByProject('project-A')).map((item) => ({ sequence: item.sequence, stateRevision: item.stateRevision, payload: item.payload }))).toEqual([
+      { sequence: 1, stateRevision: 1, payload: { state: 'STARTING' } },
+      { sequence: 2, stateRevision: 2, payload: { state: 'CHECKING_READINESS' } },
+    ]);
+    expect((await store.fetchPending(10)).map((item) => item.messageId)).toEqual(['new-message']);
     check.close(); store.close();
   });
 

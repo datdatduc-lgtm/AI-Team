@@ -93,11 +93,18 @@ describe('P0.4 durable idempotent action engine', () => {
   it('returns a conflict across engines for a different request with the same operation id', async () => {
     const database = await databasePath(); const store = new SqliteDurableStore(database, clock); const storeB = new SqliteDurableStore(database, clock); stores.push(storeB);
     const plannerA = acceptedPlanner(); const plannerB = acceptedPlanner(); const serviceA = engine(store, plannerA); const serviceB = new ActionEngine(clock, ids(), storeB, storeB, storeB, storeB, plannerB);
-    const winner = await serviceA.dispatch(action('op-1', 0, { x: 1 }));
-    const loser = await serviceB.dispatch(action('op-1', 0, { x: 2 }));
-    expect(winner.status).toBe('ACCEPTED'); expect(loser.status).toBe('CONFLICT');
-    expect((await store.getEventsByProject('project-A')).length).toBe(1); expect((await store.fetchPending(10)).filter((item) => item.topic === 'domain.event')).toHaveLength(1);
+    const [resultA, resultB] = await Promise.all([
+      serviceA.dispatch(action('op-1', 0, { x: 1 })),
+      serviceB.dispatch(action('op-1', 0, { x: 2 })),
+    ]);
+    const results = [resultA, resultB];
+    expect(results.filter((result) => result.status === 'ACCEPTED')).toHaveLength(1);
+    expect(results.filter((result) => result.status === 'CONFLICT')).toHaveLength(1);
+    expect(results.find((result) => result.status === 'CONFLICT')?.rejectionReason).toBe('OPERATION_ID_REUSED');
+    expect((await store.getEventsByProject('project-A')).length).toBe(1);
+    expect((await store.fetchPending(10)).filter((item) => item.topic === 'domain.event')).toHaveLength(1);
     expect(await store.getByOperationId('op-1')).toBeTruthy();
+    expect(await storeB.getByOperationId('op-1')).toEqual(await store.getByOperationId('op-1'));
   });
 
   it('rejects concurrent different operations against the same revision', async () => {
