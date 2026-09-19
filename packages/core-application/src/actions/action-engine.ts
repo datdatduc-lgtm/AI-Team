@@ -22,7 +22,7 @@ function toPayload(result: StoredActionResult): ActionResultPayload {
 }
 
 export class ActionEngine implements ActionDispatcherPort {
-  private readonly inFlight = new Map<string, Promise<ActionResultPayload>>();
+  private readonly inFlight = new Map<string, { readonly fingerprint: string; readonly promise: Promise<ActionResultPayload> }>();
   public constructor(
     private readonly clock: Clock,
     private readonly idGenerator: IdGenerator,
@@ -37,10 +37,14 @@ export class ActionEngine implements ActionDispatcherPort {
     const operationId = typeof (action as unknown as Record<string, unknown>).operationId === 'string'
       ? (action as unknown as Record<string, unknown>).operationId as string : undefined;
     if (!operationId) return this.dispatchInternal(action);
+    const fingerprint = actionFingerprint(action);
     const existing = this.inFlight.get(operationId);
-    if (existing) return existing;
-    const pending = this.dispatchInternal(action);
-    this.inFlight.set(operationId, pending);
+    if (existing) {
+      if (existing.fingerprint === fingerprint) return existing.promise;
+      return this.transientConflict(action, 'OperationId was reused for a different request.', 'OPERATION_ID_REUSED');
+    }
+    const pending = Promise.resolve().then(() => this.dispatchInternal(action));
+    this.inFlight.set(operationId, { fingerprint, promise: pending });
     try { return await pending; } finally { this.inFlight.delete(operationId); }
   }
 
@@ -51,13 +55,7 @@ export class ActionEngine implements ActionDispatcherPort {
     if (operationId) {
       const duplicate = await this.dedupeStore.find(operationId);
       if (duplicate) {
-        if (duplicate.requestFingerprint !== undefined && duplicate.requestFingerprint !== fingerprint) {
-          return this.persistConflict(action, operationId, fingerprint ?? '', 'OperationId was reused for a different request.');
-        }
-        if (!duplicate.resultRef) throw new Error(`Dedupe record has no result for operationId: ${operationId}.`);
-        const stored = await this.resultStore.getByResultId(duplicate.resultRef);
-        if (!stored) throw new Error(`Dedupe result is missing for operationId: ${operationId}.`);
-        return toPayload(stored);
+        return this.resolveExisting(action, fingerprint ?? '', duplicate, 'LEGACY_DEDUPE_IDENTITY_UNVERIFIED');
       }
     }
     const validation = defaultValidator.validateUIActionEnvelope(action);
@@ -125,10 +123,7 @@ export class ActionEngine implements ActionDispatcherPort {
 
   private async resolveCommitRace(action: UIActionEnvelope, fingerprint: string, error: unknown): Promise<ActionResultPayload> {
     const existing = await this.dedupeStore.find(action.operationId);
-    if (existing?.resultRef) {
-      const result = await this.resultStore.getByResultId(existing.resultRef);
-      if (result) return toPayload(result);
-    }
+    if (existing) return this.resolveExisting(action, fingerprint, existing, 'LEGACY_DEDUPE_IDENTITY_UNVERIFIED');
     const state = await this.rehydrate(action.projectId);
     if (state.stateRevision === action.expectedStateRevision) throw error;
     return this.commitResult(action, fingerprint, state.stateRevision, {
@@ -136,11 +131,25 @@ export class ActionEngine implements ActionDispatcherPort {
     }, 'CONFLICT');
   }
 
-  private async persistConflict(action: UIActionEnvelope, operationId: string, fingerprint: string, message: string): Promise<ActionResultPayload> {
+  private async transientConflict(action: UIActionEnvelope, message: string, rejectionReason = 'CONFLICT'): Promise<ActionResultPayload> {
     const state = await this.rehydrate(action.projectId);
-    const result = this.makeResult({ ...action, operationId }, 'CONFLICT', state.stateRevision, { message, rejectionReason: 'CONFLICT' });
-    void fingerprint;
+    const result = this.makeResult(action, 'CONFLICT', state.stateRevision, { message, rejectionReason });
     return toPayload(result);
+  }
+
+  private async resolveExisting(action: UIActionEnvelope, fingerprint: string, existing: NonNullable<Awaited<ReturnType<ActionDedupeStorePort['find']>>>, legacyReason: string): Promise<ActionResultPayload> {
+    if (existing.projectId !== action.projectId || existing.requestFingerprint === undefined) {
+      return this.transientConflict(action, existing.projectId === action.projectId
+        ? 'The original operation identity cannot be verified.'
+        : 'OperationId belongs to a different project.', legacyReason);
+    }
+    if (existing.requestFingerprint !== fingerprint) {
+      return this.transientConflict(action, 'OperationId was reused for a different request.', 'OPERATION_ID_REUSED');
+    }
+    if (!existing.resultRef) throw new Error(`Dedupe record has no result for operationId: ${action.operationId}.`);
+    const stored = await this.resultStore.getByResultId(existing.resultRef);
+    if (!stored) throw new Error(`Dedupe result is missing for operationId: ${action.operationId}.`);
+    return toPayload(stored);
   }
 
   private async commitResult(action: UIActionEnvelope, fingerprint: string, revision: number, plan: Exclude<ActionPlan, { kind: 'ACCEPT' }>, status: StoredActionResult['status'], operationId = action.operationId): Promise<ActionResultPayload> {
@@ -152,10 +161,8 @@ export class ActionEngine implements ActionDispatcherPort {
       await this.commitStore.commitAction({ dedupeRecord: this.dedupe({ ...action, operationId }, fingerprint, result), actionResult: result, outboxMessages: [] });
     } catch (error) {
       const existing = await this.dedupeStore.find(operationId);
-      if (!existing?.resultRef) throw error;
-      const stored = await this.resultStore.getByResultId(existing.resultRef);
-      if (!stored) throw error;
-      return toPayload(stored);
+      if (existing) return this.resolveExisting(action, fingerprint, existing, 'LEGACY_DEDUPE_IDENTITY_UNVERIFIED');
+      throw error;
     }
     return toPayload(result);
   }

@@ -9,8 +9,10 @@ import {
   type ActionDedupeRecord,
   type Clock,
   type DomainEvent,
+  type DurableActionCommit,
   type ProjectState,
   type Snapshot,
+  type StoredActionResult,
   type StoredEvent,
 } from '@ai-team/core-domain';
 import { SqliteDurableStore } from '@ai-team/core-infrastructure';
@@ -132,6 +134,21 @@ describe('P0.3 SQLite durable persistence', () => {
     store.close();
   });
 
+  it('rolls back the complete durable action commit when outbox insertion fails', async () => {
+    const store = new SqliteDurableStore(await makeDatabase(), clock);
+    const message = { messageId: 'message-duplicate', topic: 'domain.event', payload: { old: true }, createdAt: clock.now() };
+    await store.enqueue(message);
+    const result: StoredActionResult = { resultId: 'result-new', operationId: 'operation-new', actionId: 'action-new', status: 'ACCEPTED', currentStateRevision: 1, emittedAt: clock.now() };
+    const commit: DurableActionCommit = {
+      dedupeRecord: { operationId: 'operation-new', actionId: 'action-new', intent: 'test', status: 'ACCEPTED', firstSeenAt: clock.now(), lastSeenAt: clock.now(), resultRef: result.resultId, projectId: 'project-A', requestFingerprint: 'fingerprint-new' },
+      actionResult: result, event: event(1), outboxMessages: [message],
+    };
+    await expect(store.commitAction(commit)).rejects.toThrow();
+    expect(await store.find('operation-new')).toBeNull(); expect(await store.getByOperationId('operation-new')).toBeNull();
+    expect(await store.getEventsByProject('project-A')).toEqual([]); expect(await store.fetchPending(10)).toEqual([message]);
+    store.close();
+  });
+
   it('persists ordered outbox state and uses one clock value per dispatch batch', async () => {
     let ticks = 0;
     const tickingClock: Clock = { now: () => `2026-09-19T00:00:0${++ticks}.000Z` };
@@ -166,6 +183,27 @@ describe('P0.3 SQLite durable persistence', () => {
     expect(await reopened.find(record.operationId)).toMatchObject({ status: 'COMPLETED', resultRef: 'result-1' });
     await expect(reopened.updateStatus('missing', 'REJECTED')).rejects.toThrow(/missing/);
     reopened.close();
+  });
+
+  it('migrates a v1 database without dropping events or dedupe records', async () => {
+    const databasePath = await makeDatabase(); const database = new DatabaseSync(databasePath);
+    database.exec(`
+      CREATE TABLE events (event_id TEXT PRIMARY KEY, event_type TEXT NOT NULL, emitted_at TEXT NOT NULL, project_id TEXT NOT NULL, session_id TEXT, goal_id TEXT, state_revision INTEGER NOT NULL, sequence INTEGER NOT NULL, payload_json TEXT NOT NULL, UNIQUE(project_id, sequence), UNIQUE(project_id, state_revision));
+      CREATE TABLE snapshots (snapshot_id TEXT PRIMARY KEY, aggregate_id TEXT NOT NULL, aggregate_type TEXT NOT NULL, state_revision INTEGER NOT NULL, created_at TEXT NOT NULL, state_json TEXT NOT NULL);
+      CREATE TABLE outbox (message_id TEXT PRIMARY KEY, topic TEXT NOT NULL, payload_json TEXT NOT NULL, created_at TEXT NOT NULL, dispatched_at TEXT);
+      CREATE TABLE action_dedupe (operation_id TEXT PRIMARY KEY, action_id TEXT NOT NULL, intent TEXT NOT NULL, status TEXT NOT NULL, first_seen_at TEXT NOT NULL, last_seen_at TEXT NOT NULL, result_ref TEXT);
+      INSERT INTO events VALUES ('old-event', 'SESSION_STATE_CHANGED', '${clock.now()}', 'project-A', NULL, NULL, 1, 1, '{"state":"STARTING"}');
+      INSERT INTO action_dedupe VALUES ('old-operation', 'old-action', 'test', 'PENDING', '${clock.now()}', '${clock.now()}', NULL);
+      PRAGMA user_version = 1;
+    `);
+    database.close();
+    const store = new SqliteDurableStore(databasePath, clock);
+    const check = new DatabaseSync(databasePath);
+    expect(Object.values(check.prepare('PRAGMA user_version').get() as Record<string, unknown>)[0]).toBe(2);
+    expect((await store.getEventsByProject('project-A')).map((item) => item.eventId)).toEqual(['old-event']);
+    expect((await store.find('old-operation'))?.operationId).toBe('old-operation');
+    expect(check.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'action_results'").get()).toBeTruthy();
+    check.close(); store.close();
   });
 
   it('fails closed for an unsupported schema version', async () => {
