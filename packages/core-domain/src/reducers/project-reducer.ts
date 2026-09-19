@@ -63,7 +63,8 @@ export function reduceProjectState(state: ProjectState, event: DomainEvent): Red
       const goal = event.payload.goal;
       if (!validGoal(goal)) return reject(state, 'INVALID_DOMAIN_VALUE', 'Goal task counts or goalId are invalid.');
       const previous = state.goals[goal.goalId];
-      if (previous && !isAllowedTransition(GOAL_TRANSITIONS, previous.goalState, goal.goalState)) {
+      if (previous && previous.goalState !== goal.goalState
+        && !isAllowedTransition(GOAL_TRANSITIONS, previous.goalState, goal.goalState)) {
         return reject(state, 'INVALID_TRANSITION', `Goal cannot transition from ${previous.goalState} to ${goal.goalState}.`);
       }
       if (!previous && goal.goalState !== 'INTAKE') {
@@ -84,7 +85,8 @@ export function reduceProjectState(state: ProjectState, event: DomainEvent): Red
       if (!validText(worker.workerId) || !validText(worker.displayName) || !validText(worker.ownedByAgentId)) {
         return reject(state, 'INVALID_DOMAIN_VALUE', 'Worker identifiers and ownership are required.');
       }
-      if (previous && !isAllowedTransition(WORKER_TRANSITIONS, previous.workState, worker.workState)) {
+      if (previous && previous.workState !== worker.workState
+        && !isAllowedTransition(WORKER_TRANSITIONS, previous.workState, worker.workState)) {
         return reject(state, 'INVALID_TRANSITION', `Worker cannot transition from ${previous.workState} to ${worker.workState}.`);
       }
       if (!previous && worker.workState !== 'IDLE') {
