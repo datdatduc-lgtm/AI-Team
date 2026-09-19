@@ -34,7 +34,11 @@ async function runCodegen() {
     const outFileName = `${baseName}.types.ts`;
     const outFilePath = path.join(generatedDir, outFileName);
     fs.writeFileSync(outFilePath, typeCode, 'utf8');
-    exportStatements.push(`export * from './${baseName}.types.js';`);
+    const rootTypeName = schemaContent.title || baseName;
+    if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(rootTypeName)) {
+      throw new Error(`Invalid schema title for generated export: ${rootTypeName}`);
+    }
+    exportStatements.push(`export type { ${rootTypeName} } from './${baseName}.types.js';`);
     console.log(`[codegen] Generated: ${outFileName}`);
   }
 
