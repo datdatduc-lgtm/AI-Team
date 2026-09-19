@@ -110,11 +110,7 @@ describe('Architecture Boundary Guard Tests (Strict Enforce)', () => {
       /^@ai-team\/desktop-ui/,
       /^@ai-team\/test-harness/,
       /^\.\.?\/(core-application|core-infrastructure|desktop-ui)/,
-      /^(node:)?fs(\/.*)?$/,
-      /^(node:)?child_process(\/.*)?$/,
-      /^(node:)?net(\/.*)?$/,
-      /^(node:)?http(\/.*)?$/,
-      /^(node:)?https(\/.*)?$/,
+      ...FORBIDDEN_DOMAIN_NODE_BUILTINS,
       /sqlite3/,
       /better-sqlite3/,
     ];
@@ -137,9 +133,7 @@ describe('Architecture Boundary Guard Tests (Strict Enforce)', () => {
       /^@ai-team\/core-infrastructure/,
       /^@ai-team\/desktop-ui/,
       /^@ai-team\/test-harness/,
-      /^(node:)?fs(\/.*)?$/,
-      /^(node:)?child_process(\/.*)?$/,
-      /^(node:)?net(\/.*)?$/,
+      ...FORBIDDEN_DOMAIN_NODE_BUILTINS,
       /sqlite3/,
       /better-sqlite3/,
     ];
@@ -192,6 +186,10 @@ describe('Architecture Boundary Guard Tests (Strict Enforce)', () => {
   it('fails closed when an illegal static or dynamic import boundary is detected', () => {
     const mockContent = `
       import fs from 'node:fs';
+      import crypto from 'node:crypto';
+      import os from 'node:os';
+      import path from 'node:path';
+      import { Worker } from 'node:worker_threads';
       const infra = await import('@ai-team/core-infrastructure');
       const req = require('sqlite3');
     `;
@@ -200,11 +198,14 @@ describe('Architecture Boundary Guard Tests (Strict Enforce)', () => {
 
     try {
       const violations = checkFileImports(tempTestFile, [
-        /^(node:)?fs/,
+        ...FORBIDDEN_DOMAIN_NODE_BUILTINS,
         /^@ai-team\/core-infrastructure/,
         /sqlite3/,
       ]);
-      expect(violations.length).toBe(3);
+      expect(violations.length).toBe(7);
+      for (const builtin of ['node:crypto', 'node:os', 'node:path', 'node:worker_threads']) {
+        expect(violations.some((violation) => violation.includes(`"${builtin}"`))).toBe(true);
+      }
     } finally {
       if (fs.existsSync(tempTestFile)) {
         fs.unlinkSync(tempTestFile);
