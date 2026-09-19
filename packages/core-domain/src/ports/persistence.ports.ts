@@ -50,6 +50,37 @@ export interface ActionDedupeRecord {
   readonly firstSeenAt: string;
   readonly lastSeenAt: string;
   readonly resultRef?: string;
+  readonly projectId?: string;
+  readonly requestFingerprint?: string;
+}
+
+export interface StoredActionResult {
+  readonly resultId: string;
+  readonly operationId: string;
+  readonly actionId: string;
+  readonly status: 'ACCEPTED' | 'REJECTED' | 'REQUIRES_APPROVAL' | 'CONFLICT' | 'UNSUPPORTED';
+  readonly currentStateRevision: number;
+  readonly message?: string;
+  readonly rejectionReason?: string;
+  readonly errors?: readonly string[];
+  readonly payload?: Readonly<Record<string, unknown>>;
+  readonly emittedAt: string;
+}
+
+export interface ActionResultStorePort {
+  getByResultId(resultId: string): Promise<StoredActionResult | null>;
+  getByOperationId(operationId: string): Promise<StoredActionResult | null>;
+}
+
+export interface DurableActionCommit {
+  readonly dedupeRecord: ActionDedupeRecord;
+  readonly actionResult: StoredActionResult;
+  readonly event?: StoredEvent;
+  readonly outboxMessages: readonly OutboxMessage[];
+}
+
+export interface DurableActionCommitPort {
+  commitAction(commit: DurableActionCommit): Promise<void>;
 }
 
 export interface ActionDedupeStorePort {

@@ -2,18 +2,22 @@ import { DatabaseSync } from 'node:sqlite';
 import type {
   ActionDedupeRecord,
   ActionDedupeStorePort,
+  ActionResultStorePort,
   Clock,
   DurableCommit,
   DurableCommitPort,
+  DurableActionCommit,
+  DurableActionCommitPort,
   EventStorePort,
   OutboxMessage,
   OutboxPort,
   Snapshot,
   SnapshotStorePort,
+  StoredActionResult,
   StoredEvent,
 } from '@ai-team/core-domain';
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 function toJson(value: unknown): string {
   const serialized = JSON.stringify(value);
@@ -35,7 +39,7 @@ function valueAsNumber(value: unknown, label: string): number {
   return value;
 }
 
-export class SqliteDurableStore implements EventStorePort, SnapshotStorePort, OutboxPort, ActionDedupeStorePort, DurableCommitPort {
+export class SqliteDurableStore implements EventStorePort, SnapshotStorePort, OutboxPort, ActionDedupeStorePort, ActionResultStorePort, DurableCommitPort, DurableActionCommitPort {
   private readonly database: DatabaseSync;
   private readonly clock: Clock;
 
@@ -126,7 +130,7 @@ export class SqliteDurableStore implements EventStorePort, SnapshotStorePort, Ou
 
   public async find(operationId: string): Promise<ActionDedupeRecord | null> {
     const row = this.database.prepare(`
-      SELECT operation_id, action_id, intent, status, first_seen_at, last_seen_at, result_ref
+      SELECT operation_id, action_id, intent, status, first_seen_at, last_seen_at, result_ref, project_id, request_fingerprint
       FROM action_dedupe WHERE operation_id = ?
     `).get(operationId) as Record<string, unknown> | undefined;
     if (!row) return null;
@@ -134,15 +138,27 @@ export class SqliteDurableStore implements EventStorePort, SnapshotStorePort, Ou
       operationId: String(row.operation_id), actionId: String(row.action_id), intent: String(row.intent),
       status: row.status as ActionDedupeRecord['status'], firstSeenAt: String(row.first_seen_at),
       lastSeenAt: String(row.last_seen_at), ...(row.result_ref === null ? {} : { resultRef: String(row.result_ref) }),
+      ...(row.project_id === null ? {} : { projectId: String(row.project_id) }),
+      ...(row.request_fingerprint === null ? {} : { requestFingerprint: String(row.request_fingerprint) }),
     };
   }
 
   public async record(record: ActionDedupeRecord): Promise<void> {
     this.database.prepare(`
-      INSERT INTO action_dedupe (operation_id, action_id, intent, status, first_seen_at, last_seen_at, result_ref)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO action_dedupe (operation_id, action_id, intent, status, first_seen_at, last_seen_at, result_ref, project_id, request_fingerprint)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(record.operationId, record.actionId, record.intent, record.status, record.firstSeenAt,
-      record.lastSeenAt, record.resultRef ?? null);
+      record.lastSeenAt, record.resultRef ?? null, record.projectId ?? null, record.requestFingerprint ?? null);
+  }
+
+  public async getByResultId(resultId: string): Promise<StoredActionResult | null> {
+    const row = this.database.prepare('SELECT payload_json FROM action_results WHERE result_id = ?').get(resultId) as Record<string, unknown> | undefined;
+    return row ? fromJson<StoredActionResult>(row.payload_json, 'action result') : null;
+  }
+
+  public async getByOperationId(operationId: string): Promise<StoredActionResult | null> {
+    const row = this.database.prepare('SELECT payload_json FROM action_results WHERE operation_id = ?').get(operationId) as Record<string, unknown> | undefined;
+    return row ? fromJson<StoredActionResult>(row.payload_json, 'action result') : null;
   }
 
   public async updateStatus(operationId: string, status: ActionDedupeRecord['status'], resultRef?: string): Promise<void> {
@@ -166,6 +182,20 @@ export class SqliteDurableStore implements EventStorePort, SnapshotStorePort, Ou
     }
   }
 
+  public async commitAction(commit: DurableActionCommit): Promise<void> {
+    this.database.exec('BEGIN IMMEDIATE');
+    try {
+      this.insertActionDedupe(commit.dedupeRecord);
+      this.insertActionResult(commit.actionResult);
+      if (commit.event) this.insertEvent(commit.event);
+      for (const message of commit.outboxMessages) this.insertOutbox(message);
+      this.database.exec('COMMIT');
+    } catch (error) {
+      this.database.exec('ROLLBACK');
+      throw error;
+    }
+  }
+
   private configureAndInitialize(): void {
     this.database.exec('PRAGMA foreign_keys = ON');
     this.database.exec('PRAGMA journal_mode = WAL');
@@ -176,6 +206,7 @@ export class SqliteDurableStore implements EventStorePort, SnapshotStorePort, Ou
       throw new Error(`Unsupported SQLite schema version: ${version}.`);
     }
     if (version === 0) this.createSchema();
+    if (version === 1) this.migrateV1ToV2();
   }
 
   private createSchema(): void {
@@ -221,9 +252,34 @@ export class SqliteDurableStore implements EventStorePort, SnapshotStorePort, Ou
           status TEXT NOT NULL,
           first_seen_at TEXT NOT NULL,
           last_seen_at TEXT NOT NULL,
-          result_ref TEXT
+          result_ref TEXT,
+          project_id TEXT,
+          request_fingerprint TEXT
+        );
+        CREATE TABLE action_results (
+          result_id TEXT PRIMARY KEY,
+          operation_id TEXT UNIQUE NOT NULL,
+          action_id TEXT NOT NULL,
+          status TEXT NOT NULL,
+          current_state_revision INTEGER NOT NULL,
+          payload_json TEXT NOT NULL,
+          emitted_at TEXT NOT NULL
         );
       `);
+      this.database.exec(`PRAGMA user_version = ${SCHEMA_VERSION}`);
+      this.database.exec('COMMIT');
+    } catch (error) {
+      this.database.exec('ROLLBACK');
+      throw error;
+    }
+  }
+
+  private migrateV1ToV2(): void {
+    this.database.exec('BEGIN IMMEDIATE');
+    try {
+      this.database.exec('ALTER TABLE action_dedupe ADD COLUMN project_id TEXT');
+      this.database.exec('ALTER TABLE action_dedupe ADD COLUMN request_fingerprint TEXT');
+      this.createActionResultsTable();
       this.database.exec(`PRAGMA user_version = ${SCHEMA_VERSION}`);
       this.database.exec('COMMIT');
     } catch (error) {
@@ -238,6 +294,36 @@ export class SqliteDurableStore implements EventStorePort, SnapshotStorePort, Ou
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(event.eventId, event.eventType, event.emittedAt, event.projectId, event.sessionId ?? null,
       event.goalId ?? null, event.stateRevision, event.sequence, toJson(event.payload));
+  }
+
+  private insertActionDedupe(record: ActionDedupeRecord): void {
+    this.database.prepare(`
+      INSERT INTO action_dedupe (operation_id, action_id, intent, status, first_seen_at, last_seen_at, result_ref, project_id, request_fingerprint)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(record.operationId, record.actionId, record.intent, record.status, record.firstSeenAt,
+      record.lastSeenAt, record.resultRef ?? null, record.projectId ?? null, record.requestFingerprint ?? null);
+  }
+
+  private insertActionResult(result: StoredActionResult): void {
+    this.database.prepare(`
+      INSERT INTO action_results (result_id, operation_id, action_id, status, current_state_revision, payload_json, emitted_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(result.resultId, result.operationId, result.actionId, result.status, result.currentStateRevision,
+      toJson(result), result.emittedAt);
+  }
+
+  private createActionResultsTable(): void {
+    this.database.exec(`
+      CREATE TABLE IF NOT EXISTS action_results (
+        result_id TEXT PRIMARY KEY,
+        operation_id TEXT UNIQUE NOT NULL,
+        action_id TEXT NOT NULL,
+        status TEXT NOT NULL,
+        current_state_revision INTEGER NOT NULL,
+        payload_json TEXT NOT NULL,
+        emitted_at TEXT NOT NULL
+      );
+    `);
   }
 
   private insertOutbox(message: OutboxMessage): void {

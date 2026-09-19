@@ -9,3 +9,7 @@ export interface ApplicationContext {
 export interface ActionDispatcherPort {
   dispatch(action: UIActionEnvelope): Promise<ActionResultPayload>;
 }
+
+export * from './actions/action-engine.js';
+export * from './actions/action-fingerprint.js';
+export * from './actions/action-planner.js';
