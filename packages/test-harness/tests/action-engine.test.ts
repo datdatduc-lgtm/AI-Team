@@ -1,3 +1,4 @@
+import { DatabaseSync } from 'node:sqlite';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -93,6 +94,8 @@ describe('P0.4 durable idempotent action engine', () => {
   it('returns a conflict across engines for a different request with the same operation id', async () => {
     const database = await databasePath(); const store = new SqliteDurableStore(database, clock); const storeB = new SqliteDurableStore(database, clock); stores.push(storeB);
     const plannerA = acceptedPlanner(); const plannerB = acceptedPlanner(); const serviceA = engine(store, plannerA); const serviceB = new ActionEngine(clock, ids(), storeB, storeB, storeB, storeB, plannerB);
+    const fingerprintA = actionFingerprint(action('op-1', 0, { x: 1 })); const fingerprintB = actionFingerprint(action('op-1', 0, { x: 2 }));
+    expect(fingerprintA).not.toBe(fingerprintB);
     const [resultA, resultB] = await Promise.all([
       serviceA.dispatch(action('op-1', 0, { x: 1 })),
       serviceB.dispatch(action('op-1', 0, { x: 2 })),
@@ -103,8 +106,21 @@ describe('P0.4 durable idempotent action engine', () => {
     expect(results.find((result) => result.status === 'CONFLICT')?.rejectionReason).toBe('OPERATION_ID_REUSED');
     expect((await store.getEventsByProject('project-A')).length).toBe(1);
     expect((await store.fetchPending(10)).filter((item) => item.topic === 'domain.event')).toHaveLength(1);
-    expect(await store.getByOperationId('op-1')).toBeTruthy();
-    expect(await storeB.getByOperationId('op-1')).toEqual(await store.getByOperationId('op-1'));
+    const durableResult = await store.getByOperationId('op-1');
+    expect(durableResult).toMatchObject({ operationId: 'op-1', status: 'ACCEPTED' });
+    expect(await storeB.getByOperationId('op-1')).toEqual(durableResult);
+    const winningFingerprint = resultA.status === 'ACCEPTED' ? fingerprintA : fingerprintB;
+    const check = new DatabaseSync(database);
+    try {
+      const resultRows = check.prepare('SELECT result_id, operation_id, status FROM action_results WHERE operation_id = ?').all('op-1') as readonly Record<string, unknown>[];
+      expect(resultRows).toHaveLength(1);
+      expect(resultRows[0]).toMatchObject({ operation_id: 'op-1', status: 'ACCEPTED', result_id: durableResult?.resultId });
+      const dedupeRows = check.prepare('SELECT operation_id, status, result_ref, request_fingerprint FROM action_dedupe WHERE operation_id = ?').all('op-1') as readonly Record<string, unknown>[];
+      expect(dedupeRows).toHaveLength(1);
+      expect(dedupeRows[0]).toMatchObject({ operation_id: 'op-1', status: 'ACCEPTED', result_ref: durableResult?.resultId, request_fingerprint: winningFingerprint });
+    } finally {
+      check.close();
+    }
   });
 
   it('rejects concurrent different operations against the same revision', async () => {
